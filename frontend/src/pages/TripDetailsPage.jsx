@@ -1,16 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
 import {
   fetchTripDetails,
   fetchTripMatches,
   updateTripStatus as updateTripStatusRequest,
+  updateTrip as updateTripRequest,
+  deleteTrip as deleteTripRequest,
 } from '../api.js';
 import AITravelAssistant from '../components/AITravelAssistant.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import LoadingSkeleton from '../components/LoadingSkeleton.jsx';
 import MatchCard from '../components/MatchCard.jsx';
-import TripLocationsMap from '../components/TripLocationsMap.jsx';
+// maps removed - text-only UI
+import LocationAutocomplete from '../components/LocationAutocomplete.jsx';
 import { buildShareUrl, formatStatus } from '../utils/formatters.js';
 
 export default function TripDetailsPage() {
@@ -20,10 +23,14 @@ export default function TripDetailsPage() {
   const [emptyState, setEmptyState] = useState('');
   const [loading, setLoading] = useState(true);
   const [statusSaving, setStatusSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
   const shareUrl = useMemo(() => (trip ? buildShareUrl(trip.shareCode) : ''), [trip]);
 
   useEffect(() => {
     let isMounted = true;
+    const prevContactUnlockedRef = { current: new Map() };
 
     async function bootstrap() {
       try {
@@ -37,8 +44,14 @@ export default function TripDetailsPage() {
         }
 
         setTrip(tripResponse.data.trip);
-        setMatches(matchesResponse.data.matches || []);
+        const initialMatches = matchesResponse.data.matches || [];
+        setMatches(initialMatches);
         setEmptyState(matchesResponse.data.emptyState || '');
+
+        // initialize prev map so we don't re-toast existing mutual connections
+        initialMatches.forEach((m) => {
+          prevContactUnlockedRef.current.set(m.tripId, !!m.connection.contactUnlocked);
+        });
       } catch (error) {
         if (isMounted) {
           toast.error(error.response?.data?.message || 'Could not load this trip.');
@@ -52,8 +65,34 @@ export default function TripDetailsPage() {
 
     bootstrap();
 
+    const pollInterval = 7000;
+    const intervalId = setInterval(async () => {
+      try {
+        const matchesResponse = await fetchTripMatches(tripId);
+        const newMatches = matchesResponse.data.matches || [];
+
+        // detect newly mutual connections using persistent previous state
+        newMatches.forEach((m) => {
+          const prev = prevContactUnlockedRef.current.get(m.tripId);
+          const now = !!m.connection.contactUnlocked;
+          if (!prev && now) {
+            toast.success('Connection confirmed. Phone number revealed for a match.');
+          }
+          prevContactUnlockedRef.current.set(m.tripId, now);
+        });
+
+        setMatches(newMatches);
+
+        const tripResponse = await fetchTripDetails(tripId);
+        setTrip(tripResponse.data.trip);
+      } catch (error) {
+        // silent
+      }
+    }, pollInterval);
+
     return () => {
       isMounted = false;
+      clearInterval(intervalId);
     };
   }, [tripId]);
 
@@ -138,8 +177,130 @@ export default function TripDetailsPage() {
             >
               Copy trip link
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditing((e) => !e);
+                setEditForm(trip);
+              }}
+              className="rounded-full bg-stone-700 px-4 py-2 text-sm font-semibold text-stone-200 transition hover:bg-stone-600"
+            >
+              {editing ? 'Cancel' : 'Edit'}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!window.confirm('Delete this trip? This cannot be undone.')) return;
+                try {
+                  await deleteTripRequest(tripId);
+                  toast.success('Trip deleted');
+                  window.location.href = '/trips';
+                } catch (error) {
+                  toast.error(error.response?.data?.message || 'Could not delete trip.');
+                }
+              }}
+              className="rounded-full bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+            >
+              Delete
+            </button>
             <p className="truncate text-sm text-stone-500">{shareUrl}</p>
           </div>
+
+          {editing && editForm ? (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  setSavingEdit(true);
+                  const payload = {
+                    arrivalLocation: editForm.arrivalLocation,
+                    destination: editForm.destination,
+                    travelDate: editForm.travelDate,
+                    arrivalTime: editForm.arrivalTime,
+                    matchingWindowMinutes: Number(editForm.matchingWindowMinutes),
+                  };
+                  const { data } = await updateTripRequest(tripId, payload);
+                  setTrip(data.trip);
+                  setEditing(false);
+                  toast.success('Trip updated');
+                } catch (error) {
+                  toast.error(error.response?.data?.message || 'Could not update trip.');
+                } finally {
+                  setSavingEdit(false);
+                }
+              }}
+              className="mt-6 grid gap-5"
+            >
+              <LocationAutocomplete
+                label="Arrival location"
+                value={editForm.arrivalLocation}
+                onChange={(value) => setEditForm((c) => ({ ...c, arrivalLocation: value }))}
+                placeholder="Ex: Coimbatore Junction"
+                required
+              />
+
+              <LocationAutocomplete
+                label="Destination"
+                value={editForm.destination}
+                onChange={(value) => setEditForm((c) => ({ ...c, destination: value }))}
+                placeholder="Optional destination"
+              />
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="flex flex-col gap-2 text-sm text-stone-300">
+                  <span className="font-medium text-stone-200">Date *</span>
+                  <input
+                    type="date"
+                    value={editForm.travelDate}
+                    onChange={(event) => setEditForm((c) => ({ ...c, travelDate: event.target.value }))}
+                    className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                    required
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 text-sm text-stone-300">
+                  <span className="font-medium text-stone-200">Approximate arrival time *</span>
+                  <input
+                    type="time"
+                    value={editForm.arrivalTime}
+                    onChange={(event) => setEditForm((c) => ({ ...c, arrivalTime: event.target.value }))}
+                    className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                    required
+                  />
+                </label>
+              </div>
+
+              <label className="flex flex-col gap-2 text-sm text-stone-300">
+                <span className="font-medium text-stone-200">Matching window</span>
+                <select
+                  value={editForm.matchingWindowMinutes}
+                  onChange={(event) => setEditForm((c) => ({ ...c, matchingWindowMinutes: event.target.value }))}
+                  className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                >
+                  <option value="30">+/- 30 min</option>
+                  <option value="45">+/- 45 min</option>
+                  <option value="60">+/- 1 hour</option>
+                </select>
+              </label>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className="rounded-full bg-amber-400 px-5 py-3 font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {savingEdit ? 'Saving...' : 'Save changes'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEditing(false); setEditForm(null); }}
+                  className="rounded-full bg-stone-700 px-5 py-3 font-semibold text-stone-200 transition hover:bg-stone-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : null}
 
           <label className="mt-6 flex flex-col gap-2 text-sm text-stone-300">
             <span className="font-medium text-stone-200">Trip status</span>
@@ -156,12 +317,11 @@ export default function TripDetailsPage() {
           </label>
         </div>
 
-        <TripLocationsMap
-          title="Trip map"
-          arrivalLocation={trip.arrivalLocation}
-          destination={trip.destination}
-          emptyMessage="Add map pins while creating a trip to show the arrival and destination on the map."
-        />
+        <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-white">Trip locations</h2>
+          <p className="mt-2 text-sm text-stone-400">Arrival: {trip.arrivalLocation?.name}</p>
+          <p className="mt-1 text-sm text-stone-400">Destination: {trip.destination?.name || 'Not provided'}</p>
+        </div>
 
         <AITravelAssistant tripId={tripId} />
       </div>

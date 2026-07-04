@@ -1,8 +1,11 @@
 const express = require('express');
-const { getSuggestions } = require('../controllers/locationController');
+const { getSuggestions, geocode } = require('../controllers/locationController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.get('/suggestions', getSuggestions);
+// Protect suggestions endpoint
+router.get('/suggestions', protect, getSuggestions);
+router.get('/geocode', protect, geocode);
 
 module.exports = router;

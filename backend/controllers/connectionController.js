@@ -1,9 +1,7 @@
 const Connection = require('../models/connectionModel');
 const Trip = require('../models/tripModel');
 const catchAsync = require('../utils/catchAsync');
-const { buildPairKey, locationsMatch } = require('../utils/tripMatching');
-
-const ensureMatchingTrips = (firstTrip, secondTrip) => firstTrip.travelDate === secondTrip.travelDate;
+const { buildPairKey, isValidMatch } = require('../utils/tripMatching');
 
 exports.requestConnection = catchAsync(async (req, res) => {
     const { ownTripId, targetTripId } = req.body;
@@ -23,24 +21,16 @@ exports.requestConnection = catchAsync(async (req, res) => {
         return res.status(400).json({ message: 'You cannot connect with your own trip.' });
     }
 
-    if (!ensureMatchingTrips(ownTrip, targetTrip)) {
-        return res.status(400).json({ message: 'Trips must be on the same date to connect.' });
-    }
-
-    const matchWindow = Math.min(ownTrip.matchingWindowMinutes, targetTrip.matchingWindowMinutes);
-    const timeDifference = Math.abs(ownTrip.arrivalTimeMinutes - targetTrip.arrivalTimeMinutes);
-    const sameArrivalArea = locationsMatch(ownTrip.arrivalLocation, targetTrip.arrivalLocation);
-
-    if (!sameArrivalArea || timeDifference > matchWindow) {
-        return res.status(400).json({
-            message: 'You can only connect with trips that are currently valid matches.',
-        });
+    const { valid, reasons } = isValidMatch(ownTrip, targetTrip);
+    if (!valid) {
+        return res.status(400).json({ message: 'You can only connect with trips that are currently valid matches.' });
     }
 
     const pairKey = buildPairKey(ownTrip._id, targetTrip._id);
     const orderedTrips = [ownTrip, targetTrip].sort((first, second) => String(first._id).localeCompare(String(second._id)));
 
     let connection = await Connection.findOne({ pairKey });
+    let wasNew = false;
 
     if (!connection) {
         connection = await Connection.create({
@@ -52,16 +42,21 @@ exports.requestConnection = catchAsync(async (req, res) => {
             requestedBy: [req.user._id],
             status: 'pending',
         });
+        wasNew = true;
     } else if (!connection.requestedBy.some((item) => String(item) === String(req.user._id))) {
         connection.requestedBy.push(req.user._id);
     }
 
-    if (connection.requestedBy.length >= 2) {
+    // Only update status to 'mutual' if not already mutual and both have requested
+    if (connection.requestedBy.length >= 2 && connection.status !== 'mutual') {
         connection.status = 'mutual';
         connection.revealedAt = new Date();
     }
 
-    await connection.save();
+    // Only save when updating an existing connection (Connection.create already persisted)
+    if (!wasNew) {
+        await connection.save();
+    }
 
     res.status(200).json({
         message: connection.status === 'mutual'
@@ -85,9 +80,26 @@ exports.getNotifications = catchAsync(async (req, res) => {
             { tripB: { $in: ownTripIds } },
         ],
     }).populate('userA', 'name photoUrl').populate('userB', 'name photoUrl').populate('tripA').populate('tripB');
-
     const notifications = connections
-        .filter((connection) => !connection.requestedBy.some((item) => String(item) === String(req.user._id)))
+        .filter((connection) => {
+            // skip connections missing populated trips (trip deleted)
+            if (!connection.tripA || !connection.tripB) {
+                console.warn('Skipping connection with missing trip:', String(connection._id));
+                return false;
+            }
+
+            // skip if current user already requested
+            if ((connection.requestedBy || []).some((item) => String(item) === String(req.user._id))) {
+                return false;
+            }
+
+            // skip if either trip is done
+            if ((connection.tripA && connection.tripA.status === 'done') || (connection.tripB && connection.tripB.status === 'done')) {
+                return false;
+            }
+
+            return true;
+        })
         .map((connection) => {
             const isUserTripA = ownTripIds.some((id) => String(id) === String(connection.tripA._id));
             const ownTrip = isUserTripA ? connection.tripA : connection.tripB;

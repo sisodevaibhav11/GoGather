@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import { fetchSharedTrip } from '../api.js';
 import LoadingSkeleton from '../components/LoadingSkeleton.jsx';
-import TripLocationsMap from '../components/TripLocationsMap.jsx';
+// maps removed - text-only display
 import { useAuth } from '../hooks/useAuth.js';
 import { setMetaTag } from '../utils/meta.js';
 
@@ -98,12 +98,11 @@ export default function ShareTripPage() {
         </div>
       </div>
 
-      <TripLocationsMap
-        title="Trip map"
-        arrivalLocation={trip.arrivalLocation}
-        destination={trip.destination}
-        emptyMessage="This shared trip does not have saved coordinates yet."
-      />
+      <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-white">Trip locations</h2>
+        <p className="mt-2 text-sm text-stone-400">Arrival: {trip.arrivalLocation?.name}</p>
+        <p className="mt-1 text-sm text-stone-400">Destination: {trip.destination?.name || 'Not provided'}</p>
+      </div>
     </section>
   );
 }

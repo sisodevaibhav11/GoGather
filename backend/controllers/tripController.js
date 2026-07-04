@@ -12,6 +12,7 @@ const {
     buildTimeDifferenceLabel,
     buildPairKey,
     getConnectionState,
+    isValidMatch,
 } = require('../utils/tripMatching');
 
 const createShareCode = () => `tb-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -41,7 +42,7 @@ const formatTrip = (trip) => ({
     createdAt: trip.createdAt,
 });
 
-const buildMatchCard = ({ trip, otherTrip, connection, viewerId }) => {
+const buildMatchCard = ({ trip, otherTrip, connection, viewerId, matchReasons = [], group = null }) => {
     const minutesDifference = otherTrip.arrivalTimeMinutes - trip.arrivalTimeMinutes;
     const connectionState = getConnectionState(connection, viewerId);
 
@@ -62,6 +63,8 @@ const buildMatchCard = ({ trip, otherTrip, connection, viewerId }) => {
         timeDifferenceMinutes: minutesDifference,
         timeDifferenceLabel: buildTimeDifferenceLabel(minutesDifference),
         connection: connectionState,
+            matchReasons,
+            group,
     };
 };
 
@@ -186,18 +189,30 @@ exports.getTripMatches = catchAsync(async (req, res) => {
         relatedConnections.map((connection) => [connection.pairKey, connection])
     );
 
-    const matches = candidateTrips
-        .filter((otherTrip) => {
-            const matchWindow = Math.min(trip.matchingWindowMinutes, otherTrip.matchingWindowMinutes);
-            const timeDifference = Math.abs(otherTrip.arrivalTimeMinutes - trip.arrivalTimeMinutes);
+    // find groups anchored to candidate trips
+    const Group = require('../models/groupModel');
+    const candidateTripIds = candidateTrips.map((t) => t._id);
+    const groups = await Group.find({ trip: { $in: candidateTripIds } }).populate('owner', 'name photoUrl').populate('members.user', 'name');
+    const groupMap = new Map(groups.map((g) => [String(g.trip), g]));
 
-            return locationsMatch(trip.arrivalLocation, otherTrip.arrivalLocation) && timeDifference <= matchWindow;
+    const matches = candidateTrips
+        .map((otherTrip) => {
+            const { valid, reasons } = isValidMatch(trip, otherTrip);
+            return { otherTrip, valid, reasons };
         })
-        .map((otherTrip) => buildMatchCard({
+        .filter(({ valid }) => valid)
+        .map(({ otherTrip, reasons }) => buildMatchCard({
             trip,
             otherTrip,
             connection: connectionMap.get(buildPairKey(trip._id, otherTrip._id)),
             viewerId: req.user._id,
+            matchReasons: reasons,
+            group: groupMap.get(String(otherTrip._id)) ? {
+                id: groupMap.get(String(otherTrip._id))._id,
+                owner: groupMap.get(String(otherTrip._id)).owner,
+                memberCount: (groupMap.get(String(otherTrip._id)).members || []).length,
+                isMember: (groupMap.get(String(otherTrip._id)).members || []).some((m) => String(m.user) === String(req.user._id)),
+            } : null,
         }))
         .sort((first, second) => Math.abs(first.timeDifferenceMinutes) - Math.abs(second.timeDifferenceMinutes));
 
@@ -232,4 +247,78 @@ exports.updateTripStatus = catchAsync(async (req, res) => {
         message: 'Trip status updated.',
         trip: formatTrip(trip),
     });
+});
+
+exports.updateTrip = catchAsync(async (req, res) => {
+    const allowedFields = ['arrivalLocation', 'destination', 'travelDate', 'arrivalTime', 'matchingWindowMinutes'];
+    const updates = {};
+
+    for (const key of allowedFields) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+            updates[key] = req.body[key];
+        }
+    }
+
+    if (updates.arrivalLocation && !updates.arrivalLocation.name) {
+        return res.status(400).json({ message: 'Arrival location is required.' });
+    }
+
+    if (updates.travelDate && !isFutureOrToday(updates.travelDate)) {
+        return res.status(400).json({ message: 'Travel date cannot be in the past.' });
+    }
+
+    if (updates.arrivalTime) {
+        const arrivalTimeMinutes = parseTimeToMinutes(updates.arrivalTime);
+        if (arrivalTimeMinutes === null) {
+            return res.status(400).json({ message: 'Please enter a valid arrival time.' });
+        }
+        updates.arrivalTimeMinutes = arrivalTimeMinutes;
+    }
+
+    if (updates.arrivalLocation) {
+        updates.arrivalLocation = {
+            name: updates.arrivalLocation.name.trim(),
+            normalizedName: normalizeLocationName(updates.arrivalLocation.name),
+            coordinates: updates.arrivalLocation.coordinates || undefined,
+        };
+    }
+
+    if (updates.destination && updates.destination.name) {
+        updates.destination = {
+            name: updates.destination.name.trim(),
+            normalizedName: normalizeLocationName(updates.destination.name),
+            coordinates: updates.destination.coordinates || undefined,
+        };
+    } else if (Object.prototype.hasOwnProperty.call(updates, 'destination') && !updates.destination?.name) {
+        updates.destination = null;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'matchingWindowMinutes')) {
+        updates.matchingWindowMinutes = sanitizeMatchingWindow(updates.matchingWindowMinutes);
+    }
+
+    const trip = await Trip.findOneAndUpdate(
+        { _id: req.params.tripId, user: req.user._id },
+        updates,
+        { new: true }
+    );
+
+    if (!trip) {
+        return res.status(404).json({ message: 'Trip not found.' });
+    }
+
+    res.status(200).json({ message: 'Trip updated successfully.', trip: formatTrip(trip) });
+});
+
+exports.deleteTrip = catchAsync(async (req, res) => {
+    const trip = await Trip.findOneAndDelete({ _id: req.params.tripId, user: req.user._id });
+
+    if (!trip) {
+        return res.status(404).json({ message: 'Trip not found.' });
+    }
+
+    // remove any connections involving this trip
+    await Connection.deleteMany({ $or: [{ tripA: trip._id }, { tripB: trip._id }] });
+
+    res.status(200).json({ message: 'Trip deleted.' });
 });

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { requestConnection, submitReport } from '../api.js';
+import { requestConnection, submitReport, createGroup, joinGroup } from '../api.js';
 
 export default function MatchCard({ match, ownTripId, onUpdated }) {
   const [connecting, setConnecting] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportOpen, setReportOpen] = useState(false);
+  const [joining, setJoining] = useState(false);
 
   async function handleConnect() {
     try {
@@ -42,6 +43,22 @@ export default function MatchCard({ match, ownTripId, onUpdated }) {
     }
   }
 
+  async function handleJoinGroup() {
+    if (!match.group) return;
+    try {
+      setJoining(true);
+      // ensure user has a group for their own trip (create if missing) then request to join
+      await createGroup({ tripId: ownTripId }).catch(() => {});
+      await joinGroup(match.group.id, {});
+      toast.success('Requested to join group');
+      onUpdated();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not join group.');
+    } finally {
+      setJoining(false);
+    }
+  }
+
   return (
     <article className="rounded-3xl border border-stone-800 bg-stone-900/80 p-5">
       <div className="flex items-start gap-4">
@@ -61,6 +78,14 @@ export default function MatchCard({ match, ownTripId, onUpdated }) {
             </span>
           </div>
 
+          {match.matchReasons && match.matchReasons.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {match.matchReasons.map((reason) => (
+                <span key={reason} className="rounded-full bg-stone-800 px-2 py-1 text-xs text-stone-300">{reason}</span>
+              ))}
+            </div>
+          ) : null}
+
           <div className="mt-4 grid gap-2 text-sm text-stone-300">
             <p><span className="text-stone-500">Arrival:</span> {match.arrivalLocation?.name}</p>
             <p><span className="text-stone-500">Destination:</span> {match.destination?.name || 'Not shared'}</p>
@@ -72,27 +97,49 @@ export default function MatchCard({ match, ownTripId, onUpdated }) {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={handleConnect}
-              disabled={connecting || match.connection.contactUnlocked}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {match.connection.contactUnlocked
-                ? 'Connected'
-                : match.connection.requestedByMe
-                  ? 'Request Sent'
-                  : connecting
-                    ? 'Connecting...'
-                    : 'Connect'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setReportOpen((current) => !current)}
-              className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-200 transition hover:border-rose-400 hover:text-white"
-            >
-              Report user
-            </button>
+            {match.group ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleJoinGroup}
+                  disabled={joining}
+                  className="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {joining ? 'Requesting...' : match.group.isMember ? 'Member' : 'Join Group'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReportOpen((current) => !current)}
+                  className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-200 transition hover:border-rose-400 hover:text-white"
+                >
+                  Report user
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleConnect}
+                  disabled={connecting || match.connection.contactUnlocked}
+                  className="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {match.connection.contactUnlocked
+                    ? 'Connected'
+                    : match.connection.requestedByMe
+                      ? 'Request Sent'
+                      : connecting
+                        ? 'Connecting...'
+                        : 'Connect'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReportOpen((current) => !current)}
+                  className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-200 transition hover:border-rose-400 hover:text-white"
+                >
+                  Report user
+                </button>
+              </>
+            )}
           </div>
 
           {reportOpen ? (

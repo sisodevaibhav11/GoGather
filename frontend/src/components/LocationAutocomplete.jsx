@@ -8,28 +8,37 @@ export default function LocationAutocomplete({
   placeholder,
   required = false,
 }) {
-  const inputRef = useRef(null);
   const [localSuggestions, setLocalSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const skipFetchRef = useRef(false);
 
   useEffect(() => {
     if (!value?.name || value.name.trim().length < 2) {
       return undefined;
     }
 
+    // Skip fetch immediately after a user selects a suggestion
+    if (skipFetchRef.current) {
+      skipFetchRef.current = false;
+      return undefined;
+    }
+
     const timeout = setTimeout(async () => {
       try {
         const { data } = await fetchLocationSuggestions(value.name);
-        setLocalSuggestions(data.suggestions || []);
+        // backend returns { results: [...] }
+        setLocalSuggestions(data.results || []);
       } catch {
         setLocalSuggestions([]);
       }
-    }, 250);
+    }, 300);
 
     return () => clearTimeout(timeout);
   }, [value?.name]);
 
   function handleSelect(suggestion) {
+    // prevent the immediate effect-triggered fetch after selection
+    skipFetchRef.current = true;
     onChange(suggestion);
     setLocalSuggestions([]);
     setShowSuggestions(false);
@@ -42,10 +51,9 @@ export default function LocationAutocomplete({
         {required ? ' *' : ''}
       </span>
       <span className="text-xs text-stone-500">
-        Saved trip locations from TravelBuddy are suggested here. Use the map picker below to pin exact coordinates.
+        Place autocomplete powered by OpenStreetMap (proxied). Select a place to capture coordinates.
       </span>
       <input
-        ref={inputRef}
         value={value?.name || ''}
         onChange={(event) => {
           onChange({
@@ -64,9 +72,9 @@ export default function LocationAutocomplete({
       />
       {showSuggestions && localSuggestions.length > 0 ? (
         <div className="absolute top-full z-10 mt-1 overflow-hidden rounded-2xl border border-stone-700 bg-stone-950 shadow-2xl shadow-black/40">
-          {localSuggestions.map((suggestion) => (
+          {localSuggestions.map((suggestion, index) => (
             <button
-              key={`${label}-${suggestion.name}`}
+              key={`${label}-${suggestion.coordinates?.lat ?? 'noLat'}-${suggestion.coordinates?.lng ?? 'noLng'}-${index}`}
               type="button"
               onMouseDown={() => handleSelect(suggestion)}
               className="block w-full px-4 py-3 text-left text-sm text-stone-200 transition hover:bg-stone-800"

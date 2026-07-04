@@ -71,10 +71,43 @@ const getConnectionState = (connection, viewerId) => {
     };
 };
 
+const isValidMatch = (tripA, tripB) => {
+    if (!tripA || !tripB) return { valid: false, reasons: [] };
+
+    // same travel date is mandatory
+    if (tripA.travelDate !== tripB.travelDate) {
+        return { valid: false, reasons: [] };
+    }
+
+    const reasons = [];
+
+    if (locationsMatch(tripA.arrivalLocation, tripB.arrivalLocation)) {
+        reasons.push('same arrival location');
+    }
+
+    const windowA = Number.isFinite(tripA.matchingWindowMinutes) ? tripA.matchingWindowMinutes : 0;
+    const windowB = Number.isFinite(tripB.matchingWindowMinutes) ? tripB.matchingWindowMinutes : 0;
+    const matchWindow = Math.min(windowA, windowB);
+
+    const timeDiff = Number.isFinite(tripA.arrivalTimeMinutes) && Number.isFinite(tripB.arrivalTimeMinutes)
+        ? Math.abs(tripA.arrivalTimeMinutes - tripB.arrivalTimeMinutes)
+        : Infinity;
+    if (Number.isFinite(timeDiff) && timeDiff <= matchWindow) {
+        reasons.push('arrival time within window');
+    }
+
+    if (tripA.destination && tripB.destination && locationsMatch(tripA.destination, tripB.destination)) {
+        reasons.push('same destination');
+    }
+
+    return { valid: reasons.length > 0, reasons };
+};
+
 module.exports = {
     getDistanceInKm,
     locationsMatch,
     buildTimeDifferenceLabel,
     buildPairKey,
     getConnectionState,
+    isValidMatch,
 };

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { fetchNotifications, fetchTrips, requestConnection } from '../api.js';
+import { fetchNotifications, fetchTrips, requestConnection, deleteTrip } from '../api.js';
 import EmptyState from '../components/EmptyState.jsx';
 import LoadingSkeleton from '../components/LoadingSkeleton.jsx';
 import NotificationCard from '../components/NotificationCard.jsx';
@@ -45,8 +45,33 @@ export default function TripsPage() {
 
     bootstrap();
 
+    const prevIdsRef = { current: new Set() };
+    const pollInterval = 7000;
+    const intervalId = setInterval(async () => {
+      try {
+        const notificationsResponse = await fetchNotifications();
+        const newNotifications = notificationsResponse.data.notifications || [];
+
+        const newIds = new Set(newNotifications.map((n) => n.connectionId));
+        for (const id of prevIdsRef.current) {
+          if (!newIds.has(id)) {
+            toast.success('Connection status updated');
+            break;
+          }
+        }
+
+        if (isMounted) {
+          setNotifications(newNotifications);
+        }
+        prevIdsRef.current = newIds;
+      } catch (err) {
+        // ignore
+      }
+    }, pollInterval);
+
     return () => {
       isMounted = false;
+      clearInterval(intervalId);
     };
   }, []);
 
@@ -63,6 +88,16 @@ export default function TripsPage() {
       toast.error('Could not load your trips right now.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteTrip(tripId) {
+    try {
+      await deleteTrip(tripId);
+      setTrips((current) => current.filter((t) => t.id !== tripId));
+      toast.success('Trip deleted');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not delete trip.');
     }
   }
 
@@ -125,7 +160,7 @@ export default function TripsPage() {
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {trips.map((trip) => <TripCard key={trip.id} trip={trip} />)}
+          {trips.map((trip) => <TripCard key={trip.id} trip={trip} onDelete={handleDeleteTrip} />)}
         </div>
       )}
     </section>

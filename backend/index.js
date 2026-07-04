@@ -2,6 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
+// ensure required environment variables are present before startup
+const requiredJwt = process.env.JWT_SECRET;
+const requiredDb = process.env.MONGODB_URI || process.env.DB_URL;
+if (!requiredJwt || !requiredDb) {
+    console.error('Missing required environment variables. Please set JWT_SECRET and MONGODB_URI (or DB_URL).');
+    process.exit(1);
+}
+
 require('./models/dbConnect');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
@@ -10,6 +18,7 @@ const connectionRoutes = require('./routes/connectionRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const groupRoutes = require('./routes/groupRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
 const PORT = process.env.PORT || 8080;
 
@@ -30,6 +39,7 @@ app.use('/api/connections', connectionRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/ai-assist', aiRoutes);
+app.use('/api/groups', groupRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

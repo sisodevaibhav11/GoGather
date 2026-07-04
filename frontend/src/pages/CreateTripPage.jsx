@@ -3,7 +3,6 @@ import toast from 'react-hot-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createTrip } from '../api.js';
 import LocationAutocomplete from '../components/LocationAutocomplete.jsx';
-import LocationMapPicker from '../components/LocationMapPicker.jsx';
 import ProfileCompletionBanner from '../components/ProfileCompletionBanner.jsx';
 import { useAuth } from '../hooks/useAuth.js';
 
@@ -63,22 +62,12 @@ export default function CreateTripPage() {
             placeholder="Ex: Coimbatore Junction"
             required
           />
-          <LocationMapPicker
-            label="Arrival map pin"
-            value={form.arrivalLocation}
-            onChange={(value) => setForm((current) => ({ ...current, arrivalLocation: value }))}
-          />
 
           <LocationAutocomplete
             label="Destination"
             value={form.destination}
             onChange={(value) => setForm((current) => ({ ...current, destination: value }))}
             placeholder="Optional destination"
-          />
-          <LocationMapPicker
-            label="Destination map pin"
-            value={form.destination}
-            onChange={(value) => setForm((current) => ({ ...current, destination: value }))}
           />
 
           <div className="grid gap-5 sm:grid-cols-2">
