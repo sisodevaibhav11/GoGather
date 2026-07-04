@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TravelBuddy
 
 TravelBuddy is a MERN travel companion matching app for students and public travelers. A user creates a trip with an arrival location, date, and approximate arrival time. The app finds other people reaching the same place around the same time, then hides phone numbers until both sides explicitly choose to connect.
@@ -202,3 +203,6 @@ The app sets basic Open Graph tags and updates page metadata on the public share
 - MongoDB Atlas network access and connection string are valid.
 - Public share-link previews are basic metadata only, not full server-rendered dynamic cards.
 - Fare estimates are rough and should be presented as guidance, not exact pricing.
+=======
+# GoGather
+>>>>>>> 1e5ecc1c5719020774b7cc7e7f1e34e4162b35aa
