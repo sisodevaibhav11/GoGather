@@ -7,11 +7,17 @@ const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const PORT = process.env.PORT || 8080;
 
-const requiredJwt = process.env.JWT_SECRET;
-const requiredDb = process.env.MONGODB_URI || process.env.DB_URL;
-if (!requiredJwt || !requiredDb) {
-    console.error('Missing required environment variables. Please set JWT_SECRET and MONGODB_URI (or DB_URL).');
-    process.exit(1);
+const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret';
+const dbUrl = process.env.MONGODB_URI || process.env.DB_URL || 'mongodb://127.0.0.1:27017/gogather';
+
+process.env.JWT_SECRET = jwtSecret;
+process.env.MONGODB_URI = dbUrl;
+
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-jwt-secret') {
+    console.warn('JWT_SECRET not set. Using a development fallback secret.');
+}
+if (!process.env.MONGODB_URI || process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/gogather') {
+    console.warn('MongoDB URI not set. Using a local fallback URL.');
 }
 
 require('./models/dbConnect');
@@ -24,9 +30,17 @@ const aiRoutes = require('./routes/aiRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
 
+const allowedOrigins = new Set([
+    FRONTEND_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+]);
+
 const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || origin === FRONTEND_URL) {
+        if (!origin || allowedOrigins.has(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
             return callback(null, true);
         }
         return callback(new Error('Not allowed by CORS'));
@@ -39,7 +53,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
