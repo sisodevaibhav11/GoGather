@@ -6,6 +6,10 @@ require('dotenv').config();
 const app = express();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const PORT = process.env.PORT || 8080;
+const extraOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
 
 const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret';
 const dbUrl = process.env.MONGODB_URI || process.env.DB_URL || 'mongodb://127.0.0.1:27017/gogather';
@@ -32,6 +36,7 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware'
 
 const allowedOrigins = new Set([
     FRONTEND_URL,
+    ...extraOrigins,
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:5174',
@@ -79,7 +84,11 @@ app.use('/api/groups', groupRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on ${PORT}`);
+    });
+}
+
+module.exports = app;
 
