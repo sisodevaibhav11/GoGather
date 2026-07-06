@@ -6,12 +6,15 @@ const signToken = (user) => jwt.sign(
     { expiresIn: process.env.JWT_TIMEOUT || '7d' }
 );
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 exports.setAuthCookie = (res, user) => {
     const token = signToken(user);
     res.cookie('travelbuddy_token', token, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
+        path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
@@ -19,8 +22,9 @@ exports.setAuthCookie = (res, user) => {
 exports.clearAuthCookie = (res) => {
     res.clearCookie('travelbuddy_token', {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
+        path: '/',
     });
 };
 
