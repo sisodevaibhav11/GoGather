@@ -32,7 +32,14 @@ export default function LoginPage() {
           After your first login, add a mobile number to complete your profile. It will never be shown publicly until a mutual connection happens.
         </p>
         <div className="mt-8 rounded-3xl border border-stone-800 bg-stone-950/80 p-6">
-          <GoogleLogin onSuccess={handleSuccess} onError={() => toast.error('Google login failed.')} useOneTap />
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={() => toast.error('Google login failed. Please try the button again.')}
+            text="signin_with"
+            theme="outline"
+            size="large"
+            shape="pill"
+          />
         </div>
       </div>
     </section>

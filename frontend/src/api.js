@@ -1,11 +1,28 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+const rawBaseURL = (import.meta.env.VITE_API_BASE_URL || '/api').trim();
+
+const normalizeBaseURL = (value) => {
+    const trimmed = value.replace(/\/+$/, '');
+
+    if (!trimmed) {
+        return '/api';
+    }
+
+    if (trimmed === '/api' || trimmed.endsWith('/api')) {
+        return trimmed;
+    }
+
+    if (/^https?:\/\//i.test(trimmed)) {
+        return `${trimmed}/api`;
+    }
+
+    return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+};
+
+const baseURL = normalizeBaseURL(rawBaseURL);
 
 if (import.meta.env.PROD) {
-    // Check this in your browser's DevTools console on the live site — if it's
-    // not your real backend URL, VITE_API_BASE_URL is wrong in Vercel and the
-    // site needs a fresh deploy after fixing it.
     console.info(`[api] Using API base URL: ${baseURL}`);
 }
 

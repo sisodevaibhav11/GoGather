@@ -34,6 +34,11 @@ const aiRoutes = require('./routes/aiRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware');
 
+const mountRouteGroup = (path, router) => {
+    app.use(`/api${path}`, router);
+    app.use(path, router);
+};
+
 const allowedOrigins = new Set([
     FRONTEND_URL,
     ...extraOrigins,
@@ -89,13 +94,13 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/connections', connectionRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/locations', locationRoutes);
-app.use('/api/ai-assist', aiRoutes);
-app.use('/api/groups', groupRoutes);
+mountRouteGroup('/auth', authRoutes);
+mountRouteGroup('/trips', tripRoutes);
+mountRouteGroup('/connections', connectionRoutes);
+mountRouteGroup('/reports', reportRoutes);
+mountRouteGroup('/locations', locationRoutes);
+mountRouteGroup('/ai-assist', aiRoutes);
+mountRouteGroup('/groups', groupRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -107,4 +112,3 @@ if (require.main === module) {
 }
 
 module.exports = app;
-
