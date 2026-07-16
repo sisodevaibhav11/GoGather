@@ -1,32 +1,9 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
-
-if (import.meta.env.PROD) {
-    // Check this in your browser's DevTools console on the live site — if it's
-    // not your real backend URL, VITE_API_BASE_URL is wrong in Vercel and the
-    // site needs a fresh deploy after fixing it.
-    console.info(`[api] Using API base URL: ${baseURL}`);
-}
-
 const api = axios.create({
-    baseURL,
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
     withCredentials: true,
 });
-
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (!error.response) {
-            console.error(
-                `[api] Request to "${(error.config?.baseURL || '') + (error.config?.url || '')}" failed with ` +
-                'no response. This usually means: the backend URL is wrong/unreachable, or the backend ' +
-                "rejected the request via CORS because its FRONTEND_URL doesn't match this site's origin."
-            );
-        }
-        return Promise.reject(error);
-    },
-);
 
 export const googleAuth = (credential) => api.post('/auth/google', { credential });
 export const fetchCurrentUser = () => api.get('/auth/me');

@@ -48,12 +48,6 @@ const corsOptions = {
         if (!origin || allowedOrigins.has(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
             return callback(null, true);
         }
-        // Visible in Vercel's function logs — tells you exactly which origin
-        // was rejected and what the server currently thinks is allowed.
-        console.warn(
-            `[CORS] Blocked request from origin "${origin}". ` +
-            `Currently allowed origins: ${[...allowedOrigins].join(', ') || '(none)'}`
-        );
         return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
@@ -62,16 +56,6 @@ const corsOptions = {
     preflightContinue: false,
     optionsSuccessStatus: 204,
 };
-
-if (!process.env.FRONTEND_URL) {
-    console.warn(
-        '[startup] FRONTEND_URL is not set. CORS will only allow localhost by default, ' +
-        'which will block your deployed frontend. Set FRONTEND_URL to your exact deployed ' +
-        'frontend URL (e.g. https://your-frontend.vercel.app, no trailing slash) in this ' +
-        'project\'s Vercel Environment Variables, then redeploy.'
-    );
-}
-console.log(`[startup] Allowed CORS origins: ${[...allowedOrigins].join(', ')}`);
 
 app.use(cors(corsOptions));
 app.options(/(.*)/, cors(corsOptions));

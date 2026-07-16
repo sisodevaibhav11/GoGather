@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-night: #111015;
+  --color-night-soft: #1c1a22;
+  --color-card: #1a222d;
+  --color-line: #2c3947;
+  --color-accent: #f59e0b;
+  --color-accent-soft: #fde68a;
+  --color-success: #34d399;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 24%),
+    #111015;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
