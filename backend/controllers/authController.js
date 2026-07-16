@@ -54,7 +54,7 @@ exports.googleAuth = catchAsync(async (req, res) => {
 
 exports.getCurrentUser = catchAsync(async (req, res) => {
     res.status(200).json({
-        user: serializeUser(req.user),
+        user: req.user ? serializeUser(req.user) : null,
     });
 });
 

@@ -6,10 +6,10 @@ const {
     updateProfile,
     logout,
 } = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
+const { attachUserIfPresent, protect } = require('../middleware/authMiddleware');
 
 Router.post('/google', googleAuth);
-Router.get('/me', protect, getCurrentUser);
+Router.get('/me', attachUserIfPresent, getCurrentUser);
 Router.patch('/profile', protect, updateProfile);
 Router.post('/logout', logout);
 
