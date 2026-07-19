@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
 import {
@@ -85,7 +85,7 @@ export default function TripDetailsPage() {
 
         const tripResponse = await fetchTripDetails(tripId);
         setTrip(tripResponse.data.trip);
-      } catch (error) {
+      } catch {
         // silent
       }
     }, pollInterval);
@@ -151,29 +151,29 @@ export default function TripDetailsPage() {
   return (
     <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
       <div className="flex flex-col gap-6">
-        <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
+        <div className="surface-card p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-stone-500">Trip details</p>
-              <h1 className="mt-3 text-3xl font-semibold text-white">{trip.arrivalLocation.name}</h1>
+              <p className="section-kicker">Trip details</p>
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900">{trip.arrivalLocation.name}</h1>
             </div>
-            <span className="rounded-full bg-stone-800 px-3 py-1 text-xs uppercase tracking-[0.18em] text-stone-300">
+            <span className="badge-pill">
               {formatStatus(trip.status)}
             </span>
           </div>
 
-          <div className="mt-6 grid gap-3 text-sm text-stone-300">
-            <p><span className="text-stone-500">Date:</span> {trip.travelDate}</p>
-            <p><span className="text-stone-500">Arrival time:</span> {trip.arrivalTime}</p>
-            <p><span className="text-stone-500">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
-            <p><span className="text-stone-500">Matching window:</span> +/- {trip.matchingWindowMinutes} min</p>
+          <div className="mt-6 grid gap-3 text-sm text-slate-600">
+            <p><span className="text-slate-400">Date:</span> {trip.travelDate}</p>
+            <p><span className="text-slate-400">Arrival time:</span> {trip.arrivalTime}</p>
+            <p><span className="text-slate-400">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
+            <p><span className="text-slate-400">Matching window:</span> +/- {trip.matchingWindowMinutes} min</p>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={handleCopyLink}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-300"
+              className="btn-primary"
             >
               Copy trip link
             </button>
@@ -183,7 +183,7 @@ export default function TripDetailsPage() {
                 setEditing((e) => !e);
                 setEditForm(trip);
               }}
-              className="rounded-full bg-stone-700 px-4 py-2 text-sm font-semibold text-stone-200 transition hover:bg-stone-600"
+              className="btn-secondary"
             >
               {editing ? 'Cancel' : 'Edit'}
             </button>
@@ -199,11 +199,11 @@ export default function TripDetailsPage() {
                   toast.error(error.response?.data?.message || 'Could not delete trip.');
                 }
               }}
-              className="rounded-full bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+              className="btn-danger"
             >
               Delete
             </button>
-            <p className="truncate text-sm text-stone-500">{shareUrl}</p>
+            <p className="truncate text-sm text-slate-500">{shareUrl}</p>
           </div>
 
           {editing && editForm ? (
@@ -247,35 +247,35 @@ export default function TripDetailsPage() {
               />
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm text-stone-300">
-                  <span className="font-medium text-stone-200">Date *</span>
+                <label className="field-label">
+                  <span>Date *</span>
                   <input
                     type="date"
                     value={editForm.travelDate}
                     onChange={(event) => setEditForm((c) => ({ ...c, travelDate: event.target.value }))}
-                    className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                    className="field-input"
                     required
                   />
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm text-stone-300">
-                  <span className="font-medium text-stone-200">Approximate arrival time *</span>
+                <label className="field-label">
+                  <span>Approximate arrival time *</span>
                   <input
                     type="time"
                     value={editForm.arrivalTime}
                     onChange={(event) => setEditForm((c) => ({ ...c, arrivalTime: event.target.value }))}
-                    className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                    className="field-input"
                     required
                   />
                 </label>
               </div>
 
-              <label className="flex flex-col gap-2 text-sm text-stone-300">
-                <span className="font-medium text-stone-200">Matching window</span>
+              <label className="field-label">
+                <span>Matching window</span>
                 <select
                   value={editForm.matchingWindowMinutes}
                   onChange={(event) => setEditForm((c) => ({ ...c, matchingWindowMinutes: event.target.value }))}
-                  className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                  className="field-input"
                 >
                   <option value="30">+/- 30 min</option>
                   <option value="45">+/- 45 min</option>
@@ -287,14 +287,14 @@ export default function TripDetailsPage() {
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="rounded-full bg-amber-400 px-5 py-3 font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-primary"
                 >
                   {savingEdit ? 'Saving...' : 'Save changes'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setEditing(false); setEditForm(null); }}
-                  className="rounded-full bg-stone-700 px-5 py-3 font-semibold text-stone-200 transition hover:bg-stone-600"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
@@ -302,13 +302,13 @@ export default function TripDetailsPage() {
             </form>
           ) : null}
 
-          <label className="mt-6 flex flex-col gap-2 text-sm text-stone-300">
-            <span className="font-medium text-stone-200">Trip status</span>
+          <label className="field-label mt-6">
+            <span>Trip status</span>
             <select
               value={trip.status}
               onChange={handleStatusChange}
               disabled={statusSaving}
-              className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+              className="field-input"
             >
               <option value="waiting">Waiting</option>
               <option value="matched">Matched</option>
@@ -317,19 +317,19 @@ export default function TripDetailsPage() {
           </label>
         </div>
 
-        <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold text-white">Trip locations</h2>
-          <p className="mt-2 text-sm text-stone-400">Arrival: {trip.arrivalLocation?.name}</p>
-          <p className="mt-1 text-sm text-stone-400">Destination: {trip.destination?.name || 'Not provided'}</p>
+        <div className="surface-card p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-slate-900">Trip locations</h2>
+          <p className="mt-2 text-sm text-slate-500">Arrival: {trip.arrivalLocation?.name}</p>
+          <p className="mt-1 text-sm text-slate-500">Destination: {trip.destination?.name || 'Not provided'}</p>
         </div>
 
         <AITravelAssistant tripId={tripId} />
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6">
-          <h2 className="text-2xl font-semibold text-white">Automatic matches</h2>
-          <p className="mt-2 text-sm text-stone-400">
+        <div className="surface-card p-6">
+          <h2 className="text-2xl font-semibold text-slate-900">Automatic matches</h2>
+          <p className="mt-2 text-sm text-slate-500">
             Sorted by closest arrival time first. Phone numbers remain private until both travelers tap Connect.
           </p>
         </div>
@@ -342,7 +342,7 @@ export default function TripDetailsPage() {
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="rounded-full bg-amber-400 px-4 py-2 font-semibold text-stone-950"
+                className="btn-primary"
               >
                 Copy trip link
               </button>

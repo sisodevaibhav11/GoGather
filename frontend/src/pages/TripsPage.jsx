@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { fetchNotifications, fetchTrips, requestConnection, deleteTrip } from '../api.js';
@@ -64,7 +64,7 @@ export default function TripsPage() {
           setNotifications(newNotifications);
         }
         prevIdsRef.current = newIds;
-      } catch (err) {
+      } catch {
         // ignore
       }
     }, pollInterval);
@@ -121,17 +121,17 @@ export default function TripsPage() {
     <section className="flex flex-col gap-6">
       {!user?.profileCompleted ? <ProfileCompletionBanner /> : null}
 
-      <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-500">My matches</p>
-        <h1 className="mt-3 text-3xl font-semibold text-white">Your trip board</h1>
-        <p className="mt-3 text-sm leading-7 text-stone-300">
+      <div className="surface-card p-6 sm:p-8">
+        <p className="section-kicker">My matches</p>
+        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Your trip board</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
           Open any trip to see automatic matches, share the link, and unlock contact details through mutual connect.
         </p>
       </div>
 
       {notifications.length > 0 ? (
         <section className="grid gap-4">
-          <h2 className="text-xl font-semibold text-white">Pending connection requests</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Pending connection requests</h2>
           {notifications.map((notification) => (
             <NotificationCard
               key={notification.connectionId}
@@ -153,7 +153,7 @@ export default function TripsPage() {
           title="No trips yet"
           body="Create your first trip and share the link so more people can find you."
           action={(
-            <Link to="/create-trip" className="rounded-full bg-amber-400 px-4 py-2 font-semibold text-stone-950">
+            <Link to="/create-trip" className="btn-primary">
               Create trip
             </Link>
           )}

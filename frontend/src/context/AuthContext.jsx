@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async (credential) => {
     const { data } = await googleAuth(credential);
     setUser(data.user);
-    toast.success('Welcome to TravelBuddy');
+    toast.success('Welcome to GoGather');
     return data.user;
   };
 

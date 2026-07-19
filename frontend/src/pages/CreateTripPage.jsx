@@ -47,10 +47,10 @@ export default function CreateTripPage() {
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       {!user?.profileCompleted ? <ProfileCompletionBanner /> : null}
 
-      <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-500">Create trip</p>
-        <h1 className="mt-3 text-3xl font-semibold text-white">Tell TravelBuddy when and where you are arriving</h1>
-        <p className="mt-3 text-sm leading-7 text-stone-300">
+      <div className="surface-card p-6 sm:p-8">
+        <p className="section-kicker">Create trip</p>
+        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Tell GoGather when and where you are arriving</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
           Matching is based on arrival location, date, and how close the arrival times are.
         </p>
 
@@ -71,35 +71,35 @@ export default function CreateTripPage() {
           />
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm text-stone-300">
-              <span className="font-medium text-stone-200">Date *</span>
+            <label className="field-label">
+              <span>Date *</span>
               <input
                 type="date"
                 value={form.travelDate}
                 onChange={(event) => setForm((current) => ({ ...current, travelDate: event.target.value }))}
-                className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                className="field-input"
                 required
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm text-stone-300">
-              <span className="font-medium text-stone-200">Approximate arrival time *</span>
+            <label className="field-label">
+              <span>Approximate arrival time *</span>
               <input
                 type="time"
                 value={form.arrivalTime}
                 onChange={(event) => setForm((current) => ({ ...current, arrivalTime: event.target.value }))}
-                className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+                className="field-input"
                 required
               />
             </label>
           </div>
 
-          <label className="flex flex-col gap-2 text-sm text-stone-300">
-            <span className="font-medium text-stone-200">Matching window</span>
+          <label className="field-label">
+            <span>Matching window</span>
             <select
               value={form.matchingWindowMinutes}
               onChange={(event) => setForm((current) => ({ ...current, matchingWindowMinutes: event.target.value }))}
-              className="rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+              className="field-input"
             >
               <option value="30">+/- 30 min</option>
               <option value="45">+/- 45 min</option>
@@ -110,7 +110,7 @@ export default function CreateTripPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-amber-400 px-5 py-3 font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-primary"
           >
             {saving ? 'Creating trip...' : 'Create trip'}
           </button>

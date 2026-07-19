@@ -34,9 +34,9 @@ export default function ShareTripPage() {
       return;
     }
 
-    document.title = `${trip.arrivalLocation.name} at ${trip.arrivalTime} | TravelBuddy`;
-    setMetaTag('property', 'og:title', `${trip.arrivalLocation.name} | TravelBuddy`);
-    setMetaTag('property', 'og:description', `Arriving on ${trip.travelDate} at ${trip.arrivalTime}. Create your own matching trip on TravelBuddy.`);
+    document.title = `${trip.arrivalLocation.name} at ${trip.arrivalTime} | GoGather`;
+    setMetaTag('property', 'og:title', `${trip.arrivalLocation.name} | GoGather`);
+    setMetaTag('property', 'og:description', `Arriving on ${trip.travelDate} at ${trip.arrivalTime}. Create your own matching trip on GoGather.`);
   }, [trip]);
 
   const createTripLink = useMemo(() => {
@@ -65,32 +65,32 @@ export default function ShareTripPage() {
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-500">Shared trip</p>
-        <h1 className="mt-3 text-3xl font-semibold text-white">{trip.arrivalLocation.name}</h1>
-        <p className="mt-3 text-sm leading-7 text-stone-300">
+      <div className="surface-card p-6 sm:p-8">
+        <p className="section-kicker">Shared trip</p>
+        <h1 className="mt-3 text-3xl font-semibold text-slate-900">{trip.arrivalLocation.name}</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
           Someone shared this trip so others reaching around the same time can create a matching trip and connect safely.
         </p>
 
-        <div className="mt-6 grid gap-3 rounded-3xl bg-stone-950/70 p-5 text-sm text-stone-300">
-          <p><span className="text-stone-500">Date:</span> {trip.travelDate}</p>
-          <p><span className="text-stone-500">Arrival time:</span> {trip.arrivalTime}</p>
-          <p><span className="text-stone-500">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
-          <p><span className="text-stone-500">Match window:</span> +/- {trip.matchingWindowMinutes} min</p>
+        <div className="surface-soft mt-6 grid gap-3 p-5 text-sm text-slate-600">
+          <p><span className="text-slate-400">Date:</span> {trip.travelDate}</p>
+          <p><span className="text-slate-400">Arrival time:</span> {trip.arrivalTime}</p>
+          <p><span className="text-slate-400">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
+          <p><span className="text-slate-400">Match window:</span> +/- {trip.matchingWindowMinutes} min</p>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
           {isAuthenticated ? (
             <Link
               to={createTripLink}
-              className="rounded-full bg-amber-400 px-5 py-3 font-semibold text-stone-950 transition hover:bg-amber-300"
+              className="btn-primary"
             >
               Create my matching trip
             </Link>
           ) : (
             <Link
               to="/login"
-              className="rounded-full bg-amber-400 px-5 py-3 font-semibold text-stone-950 transition hover:bg-amber-300"
+              className="btn-primary"
             >
               Login to create a matching trip
             </Link>
@@ -98,10 +98,10 @@ export default function ShareTripPage() {
         </div>
       </div>
 
-      <div className="rounded-[2rem] border border-stone-800 bg-stone-900/85 p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold text-white">Trip locations</h2>
-        <p className="mt-2 text-sm text-stone-400">Arrival: {trip.arrivalLocation?.name}</p>
-        <p className="mt-1 text-sm text-stone-400">Destination: {trip.destination?.name || 'Not provided'}</p>
+      <div className="surface-card p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-slate-900">Trip locations</h2>
+        <p className="mt-2 text-sm text-slate-500">Arrival: {trip.arrivalLocation?.name}</p>
+        <p className="mt-1 text-sm text-slate-500">Destination: {trip.destination?.name || 'Not provided'}</p>
       </div>
     </section>
   );

@@ -22,6 +22,6 @@ exports.createReport = catchAsync(async (req, res) => {
     });
 
     res.status(201).json({
-        message: 'Report submitted. Thank you for helping keep TravelBuddy safer.',
+        message: 'Report submitted. Thank you for helping keep GoGather safer.',
     });
 });

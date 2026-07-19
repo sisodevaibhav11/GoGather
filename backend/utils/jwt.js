@@ -10,7 +10,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 exports.setAuthCookie = (res, user) => {
     const token = signToken(user);
-    res.cookie('travelbuddy_token', token, {
+    res.cookie('gogather_token', token, {
         httpOnly: true,
         sameSite: isProduction ? 'none' : 'lax',
         secure: isProduction,
@@ -20,7 +20,7 @@ exports.setAuthCookie = (res, user) => {
 };
 
 exports.clearAuthCookie = (res) => {
-    res.clearCookie('travelbuddy_token', {
+    res.clearCookie('gogather_token', {
         httpOnly: true,
         sameSite: isProduction ? 'none' : 'lax',
         secure: isProduction,

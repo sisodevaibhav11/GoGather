@@ -1,5 +1,4 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import './App.css';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -18,12 +17,12 @@ function App() {
   const { authLoading } = useAuth();
 
   if (authLoading) {
-    return <PageLoader label="Checking your TravelBuddy session..." />;
+    return <PageLoader label="Checking your GoGather session..." />;
   }
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-stone-950 text-stone-100">
+      <div className="app-shell">
         <Navbar />
         <main className="mx-auto flex min-h-[calc(100vh-120px)] w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
           <Routes>

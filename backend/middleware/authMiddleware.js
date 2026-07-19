@@ -5,7 +5,7 @@ const resolveUserFromRequest = async (req) => {
     const bearerToken = req.headers.authorization?.startsWith('Bearer ')
         ? req.headers.authorization.split(' ')[1]
         : null;
-    const token = req.cookies.travelbuddy_token || bearerToken;
+    const token = req.cookies.gogather_token || bearerToken;
 
     if (!token) {
         return null;

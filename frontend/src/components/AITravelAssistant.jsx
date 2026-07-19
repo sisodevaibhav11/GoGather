@@ -30,11 +30,11 @@ export default function AITravelAssistant({ tripId }) {
   }
 
   return (
-    <section className="rounded-3xl border border-stone-800 bg-stone-900/80 p-5">
+    <section className="surface-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.22em] text-stone-500">AI Travel Assistant</p>
-          <h2 className="mt-2 text-xl font-semibold text-white">Quick help for coordination and safety</h2>
+          <p className="section-kicker">AI travel assistant</p>
+          <h2 className="mt-2 text-xl font-semibold text-slate-900">Quick help for coordination and safety</h2>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export default function AITravelAssistant({ tripId }) {
             key={item}
             type="button"
             onClick={() => handleAsk(item)}
-            className="rounded-full border border-stone-700 px-3 py-2 text-sm text-stone-200 transition hover:border-amber-400 hover:text-white"
+            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition hover:border-teal-600 hover:text-teal-700"
           >
             {item}
           </button>
@@ -55,20 +55,20 @@ export default function AITravelAssistant({ tripId }) {
         value={question}
         onChange={(event) => setQuestion(event.target.value)}
         rows={4}
-        className="mt-4 w-full rounded-2xl border border-stone-700 bg-stone-950 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400"
+        className="field-input mt-4 text-sm"
         placeholder="Ask about meeting points, delays, or shared fare..."
       />
       <button
         type="button"
         onClick={() => handleAsk()}
         disabled={loading || question.trim().length < 6}
-        className="mt-3 rounded-full bg-sky-300 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-primary mt-3"
       >
         {loading ? 'Thinking...' : 'Ask assistant'}
       </button>
 
-      <div className="mt-4 rounded-2xl border border-stone-800 bg-stone-950/70 p-4">
-        <p className="text-sm whitespace-pre-line text-stone-200">
+      <div className="surface-soft mt-4 p-4">
+        <p className="whitespace-pre-line text-sm text-slate-700">
           {loading ? 'Working on a helpful answer...' : answer || 'Your answer will appear here.'}
         </p>
       </div>

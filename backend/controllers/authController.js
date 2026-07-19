@@ -33,7 +33,7 @@ exports.googleAuth = catchAsync(async (req, res) => {
     if (!user) {
         user = await User.create({
             googleId: payload.sub,
-            name: payload.name || 'TravelBuddy User',
+            name: payload.name || 'GoGather User',
             email,
             photoUrl: payload.picture || '',
         });

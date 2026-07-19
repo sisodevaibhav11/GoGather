@@ -45,12 +45,12 @@ export default function LocationAutocomplete({
   }
 
   return (
-    <label className="relative flex flex-col gap-2 text-sm text-stone-300">
-      <span className="font-medium text-stone-200">
+    <label className="field-label relative">
+      <span>
         {label}
         {required ? ' *' : ''}
       </span>
-      <span className="text-xs text-stone-500">
+      <span className="field-note">
         Place autocomplete powered by OpenStreetMap (proxied). Select a place to capture coordinates.
       </span>
       <input
@@ -68,16 +68,16 @@ export default function LocationAutocomplete({
         onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
         onFocus={() => setShowSuggestions(true)}
         placeholder={placeholder}
-        className="rounded-2xl border border-stone-700 bg-stone-900 px-4 py-3 text-white outline-none transition focus:border-amber-400"
+        className="field-input"
       />
       {showSuggestions && localSuggestions.length > 0 ? (
-        <div className="absolute top-full z-10 mt-1 overflow-hidden rounded-2xl border border-stone-700 bg-stone-950 shadow-2xl shadow-black/40">
+        <div className="absolute top-full z-10 mt-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/80">
           {localSuggestions.map((suggestion, index) => (
             <button
               key={`${label}-${suggestion.coordinates?.lat ?? 'noLat'}-${suggestion.coordinates?.lng ?? 'noLng'}-${index}`}
               type="button"
               onMouseDown={() => handleSelect(suggestion)}
-              className="block w-full px-4 py-3 text-left text-sm text-stone-200 transition hover:bg-stone-800"
+              className="block w-full px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50"
             >
               {suggestion.name}
             </button>

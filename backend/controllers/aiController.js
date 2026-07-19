@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const { getDistanceInKm } = require('../utils/tripMatching');
 
 const AI_SYSTEM_PROMPT = [
-    'You are the TravelBuddy AI Travel Assistant.',
+    'You are the GoGather AI Travel Assistant.',
     'Help travelers coordinate safely and practically.',
     'Keep answers concise, calm, and mobile-friendly.',
     'Never invent exact station infrastructure when unsure.',

@@ -2,7 +2,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 
 const navLinkClass = ({ isActive }) => `rounded-full px-4 py-2 text-sm transition ${
-  isActive ? 'bg-amber-400 text-stone-950' : 'text-stone-300 hover:bg-stone-800 hover:text-white'
+  isActive ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900'
 }`;
 
 export default function Navbar() {
@@ -15,15 +15,15 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b border-stone-800/80 bg-stone-950/90 backdrop-blur">
+    <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-400 text-lg font-semibold text-stone-950">
-            TB
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-700 text-lg font-semibold text-white">
+            GG
           </div>
           <div>
-            <p className="text-lg font-semibold tracking-wide text-white">TravelBuddy</p>
-            <p className="text-xs uppercase tracking-[0.25em] text-stone-500">Travel safer together</p>
+            <p className="text-lg font-semibold tracking-wide text-slate-900">GoGather</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Travel smarter together</p>
           </div>
         </Link>
 
@@ -36,7 +36,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full border border-stone-700 px-4 py-2 text-sm text-stone-200 transition hover:border-amber-400 hover:text-white"
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:border-teal-700 hover:text-teal-700"
               >
                 Logout
               </button>
@@ -44,7 +44,7 @@ export default function Navbar() {
                 <img
                   src={user.photoUrl}
                   alt={user.name}
-                  className="h-10 w-10 rounded-full border border-stone-700 object-cover"
+                  className="h-10 w-10 rounded-full border border-slate-200 object-cover"
                 />
               ) : null}
             </>

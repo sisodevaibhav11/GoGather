@@ -32,7 +32,7 @@ async function fetchNominatim(query) {
             limit: 5,
         },
         headers: {
-            'User-Agent': 'TravelBuddy/1.0 (+contact@travelbuddy.example)'
+            'User-Agent': 'GoGather/1.0 (+contact@gogather.example)'
         },
         timeout: 5000,
     });
