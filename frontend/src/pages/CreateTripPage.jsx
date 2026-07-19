@@ -44,14 +44,14 @@ export default function CreateTripPage() {
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <section className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       {!user?.profileCompleted ? <ProfileCompletionBanner /> : null}
 
       <div className="surface-card p-6 sm:p-8">
         <p className="section-kicker">Post a ride</p>
         <h1 className="mt-3 text-3xl font-semibold text-white">Post a ride</h1>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+        <form onSubmit={handleSubmit} className="mt-8 grid gap-5 lg:grid-cols-2">
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Transport type</p>
             <div className="grid grid-cols-3 gap-3">
@@ -158,7 +158,7 @@ export default function CreateTripPage() {
             <p className="mt-1">You can post multiple rides if needed.</p>
           </div>
 
-          <label className="field-label">
+          <label className="field-label lg:col-span-2">
             <span>Matching window</span>
             <select
               value={form.matchingWindowMinutes}
@@ -174,7 +174,7 @@ export default function CreateTripPage() {
           <button
             type="submit"
             disabled={saving}
-            className="btn-primary w-full"
+            className="btn-primary w-full lg:col-span-2"
           >
             {saving ? 'Posting ride...' : 'Post my ride'}
           </button>

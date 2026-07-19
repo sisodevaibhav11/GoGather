@@ -46,6 +46,8 @@ api.interceptors.response.use(
 );
 
 export const googleAuth = (credential) => api.post('/auth/google', { credential });
+export const signupWithPassword = (payload) => api.post('/auth/signup', payload);
+export const loginWithPassword = (payload) => api.post('/auth/login', payload);
 export const fetchCurrentUser = () => api.get('/auth/me');
 export const logoutUser = () => api.post('/auth/logout');
 export const updateProfile = (payload) => api.patch('/auth/profile', payload);

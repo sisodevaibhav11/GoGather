@@ -3,7 +3,9 @@ import toast from 'react-hot-toast';
 import {
   fetchCurrentUser,
   googleAuth,
+  loginWithPassword as loginWithPasswordRequest,
   logoutUser,
+  signupWithPassword as signupWithPasswordRequest,
   updateProfile as updateProfileRequest,
 } from '../api.js';
 import { AuthContext } from './AuthContextObject.js';
@@ -34,6 +36,20 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  const loginWithPassword = async (payload) => {
+    const { data } = await loginWithPasswordRequest(payload);
+    setUser(data.user);
+    toast.success('Welcome back');
+    return data.user;
+  };
+
+  const signupWithPassword = async (payload) => {
+    const { data } = await signupWithPasswordRequest(payload);
+    setUser(data.user);
+    toast.success('Account created');
+    return data.user;
+  };
+
   const refreshUser = async () => {
     const { data } = await fetchCurrentUser();
     setUser(data.user);
@@ -61,6 +77,8 @@ export function AuthProvider({ children }) {
         authLoading,
         isAuthenticated: Boolean(user),
         loginWithGoogle,
+        loginWithPassword,
+        signupWithPassword,
         refreshUser,
         updateProfile,
         logout,

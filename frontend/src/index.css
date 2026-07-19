@@ -185,6 +185,12 @@ textarea {
   margin: 0 auto;
 }
 
+@media (min-width: 1024px) {
+  .mobile-shell {
+    max-width: 1200px;
+  }
+}
+
 .top-header {
   position: sticky;
   top: 0;
@@ -201,5 +207,17 @@ textarea {
 @media (min-width: 768px) {
   .bottom-nav-spacer {
     height: 24px;
+  }
+}
+
+.auth-layout {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .auth-layout {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: stretch;
   }
 }
