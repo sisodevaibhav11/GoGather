@@ -122,16 +122,21 @@ export default function TripsPage() {
       {!user?.profileCompleted ? <ProfileCompletionBanner /> : null}
 
       <div className="surface-card p-6 sm:p-8">
-        <p className="section-kicker">My matches</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Your trip board</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
-          Open any trip to see automatic matches, share the link, and unlock contact details through mutual connect.
-        </p>
+        <p className="section-kicker">My rides</p>
+        <h1 className="mt-3 text-3xl font-semibold text-white">My Rides</h1>
+        <div className="mt-5 flex gap-6 border-b border-[#222222]">
+          <button type="button" className="border-b-[3px] border-[#00d084] pb-3 text-sm font-semibold text-white">
+            Posted By Me
+          </button>
+          <button type="button" className="border-b-[3px] border-transparent pb-3 text-sm font-semibold text-[#888888]">
+            I Joined
+          </button>
+        </div>
       </div>
 
       {notifications.length > 0 ? (
         <section className="grid gap-4">
-          <h2 className="text-xl font-semibold text-slate-900">Pending connection requests</h2>
+          <h2 className="text-lg font-semibold text-white">Pending requests</h2>
           {notifications.map((notification) => (
             <NotificationCard
               key={notification.connectionId}
@@ -150,16 +155,16 @@ export default function TripsPage() {
         </div>
       ) : trips.length === 0 ? (
         <EmptyState
-          title="No trips yet"
-          body="Create your first trip and share the link so more people can find you."
+          title="No active rides"
+          body="Post a ride to get started and match with nearby travelers."
           action={(
-            <Link to="/create-trip" className="btn-primary">
-              Create trip
+            <Link to="/create-trip" className="btn-secondary">
+              Post a ride
             </Link>
           )}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4">
           {trips.map((trip) => <TripCard key={trip.id} trip={trip} onDelete={handleDeleteTrip} />)}
         </div>
       )}

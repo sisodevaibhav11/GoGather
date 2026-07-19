@@ -71,13 +71,13 @@ export default function LocationAutocomplete({
         className="field-input"
       />
       {showSuggestions && localSuggestions.length > 0 ? (
-        <div className="absolute top-full z-10 mt-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/80">
+        <div className="absolute top-full z-10 mt-1 overflow-hidden rounded-2xl border border-[#333333] bg-[#1a1a1a] shadow-2xl shadow-black/40">
           {localSuggestions.map((suggestion, index) => (
             <button
               key={`${label}-${suggestion.coordinates?.lat ?? 'noLat'}-${suggestion.coordinates?.lng ?? 'noLng'}-${index}`}
               type="button"
               onMouseDown={() => handleSelect(suggestion)}
-              className="block w-full px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+              className="block w-full px-4 py-3 text-left text-sm text-white transition hover:bg-[#2a2a2a]"
             >
               {suggestion.name}
             </button>

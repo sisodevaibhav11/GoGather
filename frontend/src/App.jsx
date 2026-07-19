@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
+import BottomNav from './components/BottomNav.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import PageLoader from './components/PageLoader.jsx';
 import { useAuth } from './hooks/useAuth.js';
@@ -24,7 +25,7 @@ function App() {
     <BrowserRouter>
       <div className="app-shell">
         <Navbar />
-        <main className="mx-auto flex min-h-[calc(100vh-120px)] w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mobile-shell mx-auto flex min-h-[calc(100vh-120px)] w-full flex-col px-4 py-5 sm:px-6 lg:max-w-6xl lg:px-8">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -64,7 +65,9 @@ function App() {
             <Route path="/dashboard" element={<Navigate to="/trips" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          <div className="bottom-nav-spacer" />
         </main>
+        <BottomNav />
         <Footer />
       </div>
     </BrowserRouter>

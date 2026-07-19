@@ -48,13 +48,29 @@ export default function CreateTripPage() {
       {!user?.profileCompleted ? <ProfileCompletionBanner /> : null}
 
       <div className="surface-card p-6 sm:p-8">
-        <p className="section-kicker">Create trip</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Tell GoGather when and where you are arriving</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
-          Matching is based on arrival location, date, and how close the arrival times are.
-        </p>
+        <p className="section-kicker">Post a ride</p>
+        <h1 className="mt-3 text-3xl font-semibold text-white">Post a ride</h1>
 
         <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+          <div>
+            <p className="mb-3 text-sm font-semibold text-white">Transport type</p>
+            <div className="grid grid-cols-3 gap-3">
+              {['Airport', 'Railway', 'Bus Stand'].map((item, index) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
+                    index === 1
+                      ? 'border-white bg-white text-black'
+                      : 'border-[#333333] bg-[#2a2a2a] text-[#888888]'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <LocationAutocomplete
             label="Arrival location"
             value={form.arrivalLocation}
@@ -69,6 +85,18 @@ export default function CreateTripPage() {
             onChange={(value) => setForm((current) => ({ ...current, destination: value }))}
             placeholder="Optional destination"
           />
+
+          <div>
+            <p className="mb-3 text-sm font-semibold text-white">Direction</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" className="rounded-xl border border-white bg-white px-3 py-3 text-sm font-semibold text-black">
+                Leaving campus
+              </button>
+              <button type="button" className="rounded-xl border border-[#333333] bg-[#2a2a2a] px-3 py-3 text-sm font-semibold text-[#888888]">
+                Coming to campus
+              </button>
+            </div>
+          </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="field-label">
@@ -94,6 +122,42 @@ export default function CreateTripPage() {
             </label>
           </div>
 
+          <div>
+            <p className="mb-3 text-sm font-semibold text-white">How many partners do you need?</p>
+            <div className="flex gap-3">
+              {[1, 2, 3, 4].map((count, index) => (
+                <button
+                  key={count}
+                  type="button"
+                  className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-bold ${
+                    index === 1
+                      ? 'bg-white text-black'
+                      : 'border border-[#333333] bg-[#2a2a2a] text-[#888888]'
+                  }`}
+                >
+                  {count}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-[#888888]">Selected: 2 partners</p>
+          </div>
+
+          <label className="field-label">
+            <span>Note (optional)</span>
+            <textarea
+              rows={4}
+              maxLength={300}
+              placeholder="e.g. I'll be at the main gate by 5:45 AM"
+              className="field-input min-h-[100px] resize-y"
+            />
+            <span className="text-right text-xs text-[#888888]">0/300</span>
+          </label>
+
+          <div className="rounded-xl border border-[#00d084] bg-[#163628] p-4 text-sm text-[#d7ffed]">
+            <p>Your ride will expire automatically after departure.</p>
+            <p className="mt-1">You can post multiple rides if needed.</p>
+          </div>
+
           <label className="field-label">
             <span>Matching window</span>
             <select
@@ -110,9 +174,9 @@ export default function CreateTripPage() {
           <button
             type="submit"
             disabled={saving}
-            className="btn-primary"
+            className="btn-primary w-full"
           >
-            {saving ? 'Creating trip...' : 'Create trip'}
+            {saving ? 'Posting ride...' : 'Post my ride'}
           </button>
         </form>
       </div>

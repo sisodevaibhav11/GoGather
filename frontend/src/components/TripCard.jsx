@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { HiMapPin } from 'react-icons/hi2';
 import { formatStatus } from '../utils/formatters.js';
 
 export default function TripCard({ trip, onDelete }) {
@@ -21,34 +22,50 @@ export default function TripCard({ trip, onDelete }) {
       role="button"
       tabIndex={0}
       onClick={() => navigate(`/trips/${trip.id}`)}
-      className="surface-card block p-5 transition hover:-translate-y-0.5 hover:border-teal-300"
+      className="surface-card block p-4 transition hover:border-[#00d084]"
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="section-kicker">Arrival</p>
-          <h3 className="mt-2 text-lg font-semibold text-slate-900">{trip.arrivalLocation.name}</h3>
-          <p className="mt-3 text-sm text-slate-600">
-            {trip.travelDate} at {trip.arrivalTime}
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Match window: +/- {trip.matchingWindowMinutes} min
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="badge-pill">Railway</span>
+            <span className="rounded-full bg-[#2a2a2a] px-3 py-1 text-[11px] font-semibold text-[#888888]">
+              {formatStatus(trip.status)}
+            </span>
+          </div>
+
+          <div className="mt-4 flex items-start gap-3">
+            <HiMapPin className="mt-0.5 shrink-0 text-[18px] text-[#00d084]" />
+            <div>
+              <p className="text-xs text-[#888888]">From</p>
+              <p className="text-sm font-semibold text-white">{trip.arrivalLocation.name}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-start gap-3">
+            <HiMapPin className="mt-0.5 shrink-0 text-[18px] text-[#ff4444]" />
+            <div>
+              <p className="text-xs text-[#888888]">To</p>
+              <p className="text-sm font-semibold text-white">{trip.destination?.name || 'Destination not added'}</p>
+            </div>
+          </div>
+
+          <p className="mt-4 text-xs text-[#888888]">
+            {trip.travelDate} at {trip.arrivalTime} • Match window +/- {trip.matchingWindowMinutes} min
           </p>
         </div>
-        <div className="flex items-start gap-3">
-          <span className="badge-pill">
-            {formatStatus(trip.status)}
-          </span>
+
+        <div className="flex flex-col items-end gap-2">
           <button
             type="button"
             onClick={handleEditClick}
-            className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-700 hover:border-teal-700 hover:text-teal-700"
+            className="rounded-xl border border-[#333333] px-3 py-1.5 text-xs text-[#888888] hover:border-[#00d084] hover:text-white"
           >
             Edit
           </button>
           <button
             type="button"
             onClick={handleDeleteClick}
-            className="rounded-full bg-red-700 px-3 py-1 text-xs text-white hover:bg-red-800"
+            className="rounded-xl bg-[#2a1616] px-3 py-1.5 text-xs text-[#ff7474] hover:bg-[#341818]"
           >
             Delete
           </button>

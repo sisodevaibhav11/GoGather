@@ -1,8 +1,8 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 
-const navLinkClass = ({ isActive }) => `rounded-full px-4 py-2 text-sm transition ${
-  isActive ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900'
+const navLinkClass = ({ isActive }) => `rounded-xl px-4 py-2 text-sm transition ${
+  isActive ? 'bg-[#1f1f1f] text-[#00d084]' : 'text-[#888888] hover:bg-[#1f1f1f] hover:text-white'
 }`;
 
 export default function Navbar() {
@@ -15,28 +15,28 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <header className="top-header">
+      <div className="mobile-shell mx-auto flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:max-w-6xl lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-700 text-lg font-semibold text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00d084] text-lg font-extrabold text-[#0f0f0f]">
             GG
           </div>
           <div>
-            <p className="text-lg font-semibold tracking-wide text-slate-900">GoGather</p>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Travel smarter together</p>
+            <p className="text-lg font-semibold tracking-wide text-white">GoGather</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-[#888888]">Find your ride partner</p>
           </div>
         </Link>
 
-        <nav className="flex flex-wrap items-center gap-2">
+        <nav className="hidden flex-wrap items-center gap-2 md:flex">
           <NavLink to="/create-trip" className={navLinkClass}>Create Trip</NavLink>
-          <NavLink to="/trips" className={navLinkClass}>My Matches</NavLink>
+          <NavLink to="/trips" className={navLinkClass}>My Rides</NavLink>
           {isAuthenticated ? (
             <>
               <NavLink to="/profile" className={navLinkClass}>Profile</NavLink>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:border-teal-700 hover:text-teal-700"
+                className="rounded-xl border border-[#333333] px-4 py-2 text-sm text-[#888888] transition hover:border-[#00d084] hover:text-white"
               >
                 Logout
               </button>
@@ -44,7 +44,7 @@ export default function Navbar() {
                 <img
                   src={user.photoUrl}
                   alt={user.name}
-                  className="h-10 w-10 rounded-full border border-slate-200 object-cover"
+                  className="h-10 w-10 rounded-full border border-[#333333] object-cover"
                 />
               ) : null}
             </>

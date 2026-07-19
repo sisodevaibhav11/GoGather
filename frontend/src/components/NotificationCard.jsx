@@ -1,7 +1,7 @@
 export default function NotificationCard({ notification, onConnectBack, busy }) {
   return (
-    <div className="surface-card border-emerald-200 bg-emerald-50 p-4">
-      <p className="text-sm text-emerald-900">
+    <div className="rounded-2xl border border-[#00d084] bg-[#163628] p-4">
+      <p className="text-sm text-[#d7ffed]">
         <span className="font-semibold">{notification.requester.name}</span>
         {' '}
         wants to connect with you for
@@ -12,7 +12,7 @@ export default function NotificationCard({ notification, onConnectBack, busy }) 
         type="button"
         onClick={() => onConnectBack(notification)}
         disabled={busy}
-        className="mt-3 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-3 rounded-xl bg-[#00d084] px-4 py-2 text-sm font-semibold text-[#0f0f0f] transition hover:bg-[#00b974] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? 'Connecting...' : 'Connect Back'}
       </button>
