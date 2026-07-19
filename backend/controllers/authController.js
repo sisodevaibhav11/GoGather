@@ -1,5 +1,6 @@
 const { verifyGoogleToken } = require('../utils/googleClient');
 const User = require('../models/userModel');
+const { connectToDatabase } = require('../models/dbConnect');
 const catchAsync = require('../utils/catchAsync');
 const { setAuthCookie, clearAuthCookie } = require('../utils/jwt');
 const { isValidMobileNumber } = require('../utils/validators');
@@ -20,6 +21,8 @@ exports.googleAuth = catchAsync(async (req, res) => {
     if (!credential) {
         return res.status(400).json({ message: 'Google credential is required.' });
     }
+
+    await connectToDatabase();
 
     const payload = await verifyGoogleToken(credential);
     const email = payload.email?.toLowerCase().trim();

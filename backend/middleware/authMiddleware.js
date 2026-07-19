@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const { connectToDatabase } = require('../models/dbConnect');
 const { verifyToken } = require('../utils/jwt');
 
 const resolveUserFromRequest = async (req) => {
@@ -10,6 +11,8 @@ const resolveUserFromRequest = async (req) => {
     if (!token) {
         return null;
     }
+
+    await connectToDatabase();
 
     const decoded = verifyToken(token);
     return User.findById(decoded.userId);
