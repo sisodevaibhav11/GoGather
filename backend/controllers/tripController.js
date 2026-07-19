@@ -16,6 +16,16 @@ const {
 } = require('../utils/tripMatching');
 
 const createShareCode = () => `tb-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const allowedTransportTypes = new Set(['airport', 'railway', 'bus-stand']);
+const allowedDirections = new Set(['leaving-campus', 'coming-campus']);
+
+const sanitizeTransportType = (value) => (allowedTransportTypes.has(value) ? value : 'railway');
+const sanitizeDirection = (value) => (allowedDirections.has(value) ? value : 'leaving-campus');
+const sanitizePartnersNeeded = (value) => {
+    const numeric = Number(value);
+    return [1, 2, 3, 4].includes(numeric) ? numeric : 2;
+};
+const sanitizeNote = (value) => (typeof value === 'string' ? value.trim().slice(0, 300) : '');
 
 const formatLocation = (location) => {
     if (!location) {
@@ -37,6 +47,10 @@ const formatTrip = (trip) => ({
     travelDate: trip.travelDate,
     arrivalTime: trip.arrivalTime,
     matchingWindowMinutes: trip.matchingWindowMinutes,
+    transportType: trip.transportType,
+    direction: trip.direction,
+    partnersNeeded: trip.partnersNeeded,
+    note: trip.note,
     status: trip.status,
     shareCode: trip.shareCode,
     createdAt: trip.createdAt,
@@ -75,6 +89,10 @@ exports.createTrip = catchAsync(async (req, res) => {
         travelDate,
         arrivalTime,
         matchingWindowMinutes,
+        transportType,
+        direction,
+        partnersNeeded,
+        note,
     } = req.body;
 
     if (!req.user.profileCompleted) {
@@ -112,6 +130,10 @@ exports.createTrip = catchAsync(async (req, res) => {
         arrivalTime,
         arrivalTimeMinutes,
         matchingWindowMinutes: sanitizeMatchingWindow(matchingWindowMinutes),
+        transportType: sanitizeTransportType(transportType),
+        direction: sanitizeDirection(direction),
+        partnersNeeded: sanitizePartnersNeeded(partnersNeeded),
+        note: sanitizeNote(note),
         shareCode: createShareCode(),
     });
 
@@ -250,7 +272,17 @@ exports.updateTripStatus = catchAsync(async (req, res) => {
 });
 
 exports.updateTrip = catchAsync(async (req, res) => {
-    const allowedFields = ['arrivalLocation', 'destination', 'travelDate', 'arrivalTime', 'matchingWindowMinutes'];
+    const allowedFields = [
+        'arrivalLocation',
+        'destination',
+        'travelDate',
+        'arrivalTime',
+        'matchingWindowMinutes',
+        'transportType',
+        'direction',
+        'partnersNeeded',
+        'note',
+    ];
     const updates = {};
 
     for (const key of allowedFields) {
@@ -295,6 +327,22 @@ exports.updateTrip = catchAsync(async (req, res) => {
 
     if (Object.prototype.hasOwnProperty.call(updates, 'matchingWindowMinutes')) {
         updates.matchingWindowMinutes = sanitizeMatchingWindow(updates.matchingWindowMinutes);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'transportType')) {
+        updates.transportType = sanitizeTransportType(updates.transportType);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'direction')) {
+        updates.direction = sanitizeDirection(updates.direction);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'partnersNeeded')) {
+        updates.partnersNeeded = sanitizePartnersNeeded(updates.partnersNeeded);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'note')) {
+        updates.note = sanitizeNote(updates.note);
     }
 
     const trip = await Trip.findOneAndUpdate(

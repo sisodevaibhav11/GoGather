@@ -15,6 +15,7 @@ const serializeUser = (user) => ({
     email: user.email,
     photoUrl: user.photoUrl,
     mobileNumber: user.mobileNumber,
+    hostel: user.hostel,
     profileCompleted: user.profileCompleted,
     createdAt: user.createdAt,
 });
@@ -144,7 +145,12 @@ exports.getCurrentUser = catchAsync(async (req, res) => {
 });
 
 exports.updateProfile = catchAsync(async (req, res) => {
-    const { mobileNumber, photoUrl, name } = req.body;
+    const {
+        mobileNumber,
+        photoUrl,
+        name,
+        hostel,
+    } = req.body;
 
     if (mobileNumber && !isValidMobileNumber(mobileNumber)) {
         return res.status(400).json({
@@ -162,6 +168,10 @@ exports.updateProfile = catchAsync(async (req, res) => {
 
     if (typeof mobileNumber === 'string') {
         req.user.mobileNumber = mobileNumber.trim();
+    }
+
+    if (typeof hostel === 'string') {
+        req.user.hostel = hostel.trim();
     }
 
     req.user.profileCompleted = Boolean(req.user.mobileNumber);

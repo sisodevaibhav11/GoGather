@@ -53,6 +53,27 @@ const tripSchema = new mongoose.Schema({
         enum: [30, 45, 60],
         default: 45,
     },
+    transportType: {
+        type: String,
+        enum: ['airport', 'railway', 'bus-stand'],
+        default: 'railway',
+    },
+    direction: {
+        type: String,
+        enum: ['leaving-campus', 'coming-campus'],
+        default: 'leaving-campus',
+    },
+    partnersNeeded: {
+        type: Number,
+        enum: [1, 2, 3, 4],
+        default: 2,
+    },
+    note: {
+        type: String,
+        default: '',
+        maxlength: 300,
+        trim: true,
+    },
     status: {
         type: String,
         enum: ['waiting', 'matched', 'done'],

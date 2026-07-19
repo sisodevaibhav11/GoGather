@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    hostel: {
+        type: String,
+        default: '',
+        trim: true,
+    },
     profileCompleted: {
         type: Boolean,
         default: false,
