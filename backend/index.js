@@ -11,6 +11,26 @@ const extraOrigins = (process.env.ALLOWED_ORIGINS || '')
     .map((value) => value.trim())
     .filter(Boolean);
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildVercelPreviewPattern = (origin) => {
+    try {
+        const url = new URL(origin);
+        if (url.protocol !== 'https:' || !url.hostname.endsWith('.vercel.app')) {
+            return null;
+        }
+
+        const baseLabel = url.hostname.replace(/\.vercel\.app$/i, '');
+        if (!baseLabel) {
+            return null;
+        }
+
+        return new RegExp(`^https://${escapeRegExp(baseLabel)}(?:-[a-z0-9-]+)?\\.vercel\\.app$`, 'i');
+    } catch {
+        return null;
+    }
+};
+
 const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret';
 const dbUrl = process.env.MONGODB_URI || process.env.DB_URL || 'mongodb://127.0.0.1:27017/gogather';
 
@@ -48,16 +68,22 @@ const allowedOrigins = new Set([
     'http://127.0.0.1:5174',
 ]);
 
+const allowedOriginPatterns = [
+    buildVercelPreviewPattern(FRONTEND_URL),
+    ...extraOrigins.map(buildVercelPreviewPattern),
+].filter(Boolean);
+
 const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.has(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        const matchesAllowedPattern = allowedOriginPatterns.some((pattern) => pattern.test(origin || ''));
+        if (!origin || allowedOrigins.has(origin) || matchesAllowedPattern || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
             return callback(null, true);
         }
-        // Visible in Vercel's function logs — tells you exactly which origin
-        // was rejected and what the server currently thinks is allowed.
+
         console.warn(
             `[CORS] Blocked request from origin "${origin}". ` +
-            `Currently allowed origins: ${[...allowedOrigins].join(', ') || '(none)'}`
+            `Currently allowed origins: ${[...allowedOrigins].join(', ') || '(none)'}. ` +
+            `Allowed origin patterns: ${allowedOriginPatterns.map((pattern) => pattern.toString()).join(', ') || '(none)'}`
         );
         return callback(new Error('Not allowed by CORS'));
     },
@@ -77,6 +103,7 @@ if (!process.env.FRONTEND_URL) {
     );
 }
 console.log(`[startup] Allowed CORS origins: ${[...allowedOrigins].join(', ')}`);
+console.log(`[startup] Allowed CORS origin patterns: ${allowedOriginPatterns.map((pattern) => pattern.toString()).join(', ') || '(none)'}`);
 
 app.use(cors(corsOptions));
 app.options(/(.*)/, cors(corsOptions));
@@ -86,7 +113,7 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
     res.json({
         success: true,
-        message: 'GoGather Backend is running 🚀',
+        message: 'GoGather Backend is running',
     });
 });
 
