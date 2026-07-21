@@ -20,6 +20,10 @@ export default function CreateTripPage() {
     travelDate: searchParams.get('date') || '',
     arrivalTime: searchParams.get('time') || '',
     matchingWindowMinutes: searchParams.get('window') || '45',
+    transportType: 'railway',
+    direction: 'leaving-campus',
+    partnersNeeded: 2,
+    note: '',
   }), [searchParams]);
 
   const [form, setForm] = useState(initialForm);
@@ -33,6 +37,7 @@ export default function CreateTripPage() {
       const { data } = await createTrip({
         ...form,
         matchingWindowMinutes: Number(form.matchingWindowMinutes),
+        partnersNeeded: Number(form.partnersNeeded),
       });
       toast.success('Trip created');
       navigate(`/trips/${data.trip.id}`);
@@ -55,17 +60,22 @@ export default function CreateTripPage() {
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Transport type</p>
             <div className="grid grid-cols-3 gap-3">
-              {['Airport', 'Railway', 'Bus Stand'].map((item, index) => (
+              {[
+                { value: 'airport', label: 'Airport' },
+                { value: 'railway', label: 'Railway' },
+                { value: 'bus-stand', label: 'Bus Stand' },
+              ].map((item) => (
                 <button
-                  key={item}
+                  key={item.value}
                   type="button"
-                  className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
-                    index === 1
+                  onClick={() => setForm((c) => ({ ...c, transportType: item.value }))}
+                  className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+                    form.transportType === item.value
                       ? 'border-white bg-white text-black'
-                      : 'border-[#333333] bg-[#2a2a2a] text-[#888888]'
+                      : 'border-[#333333] bg-[#2a2a2a] text-[#888888] hover:border-[#444444]'
                   }`}
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -89,12 +99,23 @@ export default function CreateTripPage() {
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Direction</p>
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" className="rounded-xl border border-white bg-white px-3 py-3 text-sm font-semibold text-black">
-                Leaving campus
-              </button>
-              <button type="button" className="rounded-xl border border-[#333333] bg-[#2a2a2a] px-3 py-3 text-sm font-semibold text-[#888888]">
-                Coming to campus
-              </button>
+              {[
+                { value: 'leaving-campus', label: 'Leaving campus' },
+                { value: 'coming-campus', label: 'Coming to campus' },
+              ].map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setForm((c) => ({ ...c, direction: item.value }))}
+                  className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+                    form.direction === item.value
+                      ? 'border-white bg-white text-black'
+                      : 'border-[#333333] bg-[#2a2a2a] text-[#888888] hover:border-[#444444]'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -125,21 +146,22 @@ export default function CreateTripPage() {
           <div>
             <p className="mb-3 text-sm font-semibold text-white">How many partners do you need?</p>
             <div className="flex gap-3">
-              {[1, 2, 3, 4].map((count, index) => (
+              {[1, 2, 3, 4].map((count) => (
                 <button
                   key={count}
                   type="button"
-                  className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-bold ${
-                    index === 1
+                  onClick={() => setForm((c) => ({ ...c, partnersNeeded: count }))}
+                  className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-bold transition ${
+                    form.partnersNeeded === count
                       ? 'bg-white text-black'
-                      : 'border border-[#333333] bg-[#2a2a2a] text-[#888888]'
+                      : 'border border-[#333333] bg-[#2a2a2a] text-[#888888] hover:border-[#444444]'
                   }`}
                 >
                   {count}
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-xs text-[#888888]">Selected: 2 partners</p>
+            <p className="mt-2 text-xs text-[#888888]">Selected: {form.partnersNeeded} partner{form.partnersNeeded !== 1 ? 's' : ''}</p>
           </div>
 
           <label className="field-label">
@@ -147,10 +169,12 @@ export default function CreateTripPage() {
             <textarea
               rows={4}
               maxLength={300}
+              value={form.note}
+              onChange={(event) => setForm((c) => ({ ...c, note: event.target.value }))}
               placeholder="e.g. I'll be at the main gate by 5:45 AM"
               className="field-input min-h-[100px] resize-y"
             />
-            <span className="text-right text-xs text-[#888888]">0/300</span>
+            <span className="text-right text-xs text-[#888888]">{form.note.length}/300</span>
           </label>
 
           <div className="rounded-xl border border-[#00d084] bg-[#163628] p-4 text-sm text-[#d7ffed]">

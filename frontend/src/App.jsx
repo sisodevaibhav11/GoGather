@@ -13,6 +13,11 @@ import TripDetailsPage from './pages/TripDetailsPage.jsx';
 import ShareTripPage from './pages/ShareTripPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import HowItWorksPage from './pages/HowItWorksPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
+import RaiseIssuePage from './pages/RaiseIssuePage.jsx';
 
 function App() {
   const { authLoading } = useAuth();
@@ -62,6 +67,11 @@ function App() {
                 </ProtectedRoute>
               )}
             />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/raise-issue" element={<RaiseIssuePage />} />
             <Route path="/dashboard" element={<Navigate to="/trips" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

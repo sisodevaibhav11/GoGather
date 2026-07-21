@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { HiChevronRight, HiHomeModern, HiPhone } from 'react-icons/hi2';
 import { useAuth } from '../hooks/useAuth.js';
 
@@ -44,17 +45,17 @@ export default function ProfilePage() {
   ];
 
   const accountItems = [
-    'Edit Profile',
-    'Change WhatsApp Number',
-    'Change Hostel',
+    { label: 'Edit Profile', disabled: true },
+    { label: 'Change WhatsApp Number', disabled: true },
+    { label: 'Change Hostel', disabled: true },
   ];
 
   const aboutItems = [
-    'How It Works',
-    'Raise an Issue',
-    'About GoGather',
-    'Privacy Policy',
-    'Terms of Service',
+    { label: 'How It Works', path: '/how-it-works' },
+    { label: 'Raise an Issue', path: '/raise-issue' },
+    { label: 'About GoGather', path: '/about' },
+    { label: 'Privacy Policy', path: '/privacy' },
+    { label: 'Terms of Service', path: '/terms' },
   ];
 
   async function handleSubmit(event) {
@@ -152,12 +153,17 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-3">
                 {accountItems.map((item) => (
                   <button
-                    key={item}
+                    key={item.label}
                     type="button"
-                    className="surface-soft flex items-center justify-between px-4 py-3 text-left text-sm text-white"
+                    disabled={item.disabled}
+                    className={`surface-soft flex items-center justify-between px-4 py-3 text-left text-sm ${
+                      item.disabled
+                        ? 'cursor-not-allowed text-[#666666]'
+                        : 'text-white'
+                    }`}
                   >
-                    <span>{item}</span>
-                    <HiChevronRight className="text-[#888888]" />
+                    <span>{item.label}</span>
+                    <HiChevronRight className={item.disabled ? 'text-[#555555]' : 'text-[#888888]'} />
                   </button>
                 ))}
               </div>
@@ -200,19 +206,19 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-3">
                 {aboutItems.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    className="surface-soft flex items-center justify-between px-4 py-3 text-left text-sm text-white"
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    className="surface-soft flex items-center justify-between px-4 py-3 text-left text-sm text-white hover:bg-[#333333] transition"
                   >
-                    <span>{item}</span>
+                    <span>{item.label}</span>
                     <HiChevronRight className="text-[#888888]" />
-                  </button>
+                  </Link>
                 ))}
                 <button
                   type="button"
                   onClick={logout}
-                  className="surface-soft px-4 py-3 text-left text-sm font-semibold text-[#ff4444]"
+                  className="surface-soft px-4 py-3 text-left text-sm font-semibold text-[#ff4444] hover:bg-[#333333] transition"
                 >
                   Sign out
                 </button>
