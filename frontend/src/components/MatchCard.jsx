@@ -70,8 +70,8 @@ export default function MatchCard({ match, ownTripId, onUpdated }) {
         <div className="flex-1">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">{match.user.name}</h3>
-              <p className="text-sm text-slate-500">{match.timeDifferenceLabel}</p>
+              <h3 className="text-lg font-semibold text-white">{match.user.name}</h3>
+              <p className="text-sm text-[#888888]">{match.timeDifferenceLabel}</p>
             </div>
             <span className="badge-pill">
               {match.arrivalTime}
@@ -81,16 +81,16 @@ export default function MatchCard({ match, ownTripId, onUpdated }) {
           {match.matchReasons && match.matchReasons.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {match.matchReasons.map((reason) => (
-                <span key={reason} className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">{reason}</span>
+                <span key={reason} className="rounded-full border border-[#333333] bg-[#2a2a2a] px-2.5 py-1 text-xs text-[#cccccc]">{reason}</span>
               ))}
             </div>
           ) : null}
 
-          <div className="mt-4 grid gap-2 text-sm text-slate-600">
-            <p><span className="text-slate-400">Arrival:</span> {match.arrivalLocation?.name}</p>
-            <p><span className="text-slate-400">Destination:</span> {match.destination?.name || 'Not shared'}</p>
+          <div className="mt-4 grid gap-2 text-sm text-[#cccccc]">
+            <p><span className="text-[#888888]">Arrival:</span> {match.arrivalLocation?.name}</p>
+            <p><span className="text-[#888888]">Destination:</span> {match.destination?.name || 'Not shared'}</p>
             <p>
-              <span className="text-slate-400">Contact:</span>
+              <span className="text-[#888888]">Contact:</span>
               {' '}
               {match.connection.contactUnlocked ? match.user.mobileNumber : 'Hidden until both sides connect'}
             </p>

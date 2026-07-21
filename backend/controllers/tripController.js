@@ -152,6 +152,31 @@ exports.getMyTrips = catchAsync(async (req, res) => {
     });
 });
 
+exports.getPublicTrips = catchAsync(async (req, res) => {
+    const filter = { status: { $ne: 'done' } };
+    const { transportType } = req.query;
+
+    if (transportType && allowedTransportTypes.has(transportType)) {
+        filter.transportType = transportType;
+    }
+
+    const trips = await Trip.find(filter)
+        .populate('user', 'name photoUrl')
+        .sort({ createdAt: -1 })
+        .limit(20);
+
+    res.status(200).json({
+        trips: trips.map((trip) => ({
+            ...formatTrip(trip),
+            user: trip.user ? {
+                id: trip.user._id,
+                name: trip.user.name,
+                photoUrl: trip.user.photoUrl,
+            } : null,
+        })),
+    });
+});
+
 exports.getTripDetails = catchAsync(async (req, res) => {
     const trip = await Trip.findOne({
         _id: req.params.tripId,

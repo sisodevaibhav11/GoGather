@@ -2,6 +2,7 @@ const express = require('express');
 const {
     createTrip,
     getMyTrips,
+    getPublicTrips,
     getTripDetails,
     getTripByShareCode,
     getTripMatches,
@@ -15,6 +16,7 @@ const { tripCreationLimiter } = require('../middleware/rateLimiters');
 const router = express.Router();
 
 router.get('/share/:shareCode', getTripByShareCode);
+router.get('/public', getPublicTrips);
 router.use(protect);
 router.get('/', getMyTrips);
 router.post('/', tripCreationLimiter, createTrip);

@@ -53,6 +53,7 @@ export const logoutUser = () => api.post('/auth/logout');
 export const updateProfile = (payload) => api.patch('/auth/profile', payload);
 
 export const fetchTrips = () => api.get('/trips');
+export const fetchPublicTrips = (transportType) => api.get(`/trips/public${transportType ? `?transportType=${encodeURIComponent(transportType)}` : ''}`);
 export const createTrip = (payload) => api.post('/trips', payload);
 export const fetchTripDetails = (tripId) => api.get(`/trips/${tripId}`);
 export const fetchTripMatches = (tripId) => api.get(`/trips/${tripId}/matches`);
@@ -65,6 +66,7 @@ export const fetchLocationSuggestions = (query) => api.get(`/locations/geocode?q
 export const requestConnection = (payload) => api.post('/connections', payload);
 export const fetchNotifications = () => api.get('/connections/notifications');
 export const submitReport = (payload) => api.post('/reports', payload);
+export const submitIssue = (payload) => api.post('/reports/issue', payload);
 export const askAiAssistant = (payload) => api.post('/ai-assist', payload);
 export const createGroup = (payload) => api.post('/groups', payload);
 export const joinGroup = (groupId, payload) => api.post(`/groups/${groupId}/join`, payload);

@@ -25,3 +25,20 @@ exports.createReport = catchAsync(async (req, res) => {
         message: 'Report submitted. Thank you for helping keep GoGather safer.',
     });
 });
+
+exports.createIssueReport = catchAsync(async (req, res) => {
+    const { type, email, subject, description } = req.body;
+
+    if (!subject?.trim() || !description?.trim()) {
+        return res.status(400).json({ message: 'Subject and description are required.' });
+    }
+
+    await Report.create({
+        reporter: req.user ? req.user._id : undefined,
+        reason: `[${(type || 'issue').toUpperCase()}] ${subject.trim()}: ${description.trim()} (Contact: ${email || 'Anonymous'})`,
+    });
+
+    res.status(201).json({
+        message: 'Issue report submitted successfully. Thank you!',
+    });
+});

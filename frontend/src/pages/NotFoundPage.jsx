@@ -5,8 +5,8 @@ export default function NotFoundPage() {
     <section className="mx-auto flex max-w-2xl flex-1 items-center">
       <div className="surface-card w-full p-8 text-center">
         <p className="section-kicker">404</p>
-        <h1 className="mt-4 text-3xl font-semibold text-slate-900">This route does not exist</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
+        <h1 className="mt-4 text-3xl font-semibold text-white">This route does not exist</h1>
+        <p className="mt-3 text-sm leading-7 text-[#888888]">
           The trip link may be broken, or the page has moved.
         </p>
         <Link

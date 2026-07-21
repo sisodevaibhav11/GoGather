@@ -34,7 +34,7 @@ export default function AITravelAssistant({ tripId }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="section-kicker">AI travel assistant</p>
-          <h2 className="mt-2 text-xl font-semibold text-slate-900">Quick help for coordination and safety</h2>
+          <h2 className="mt-2 text-xl font-semibold text-white">Quick help for coordination and safety</h2>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export default function AITravelAssistant({ tripId }) {
             key={item}
             type="button"
             onClick={() => handleAsk(item)}
-            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition hover:border-teal-600 hover:text-teal-700"
+            className="rounded-full border border-[#333333] bg-[#2a2a2a] px-3.5 py-1.5 text-xs font-semibold text-[#cccccc] transition hover:border-[#00d084] hover:text-white"
           >
             {item}
           </button>
@@ -68,7 +68,7 @@ export default function AITravelAssistant({ tripId }) {
       </button>
 
       <div className="surface-soft mt-4 p-4">
-        <p className="whitespace-pre-line text-sm text-slate-700">
+        <p className="whitespace-pre-line text-sm text-[#dddddd]">
           {loading ? 'Working on a helpful answer...' : answer || 'Your answer will appear here.'}
         </p>
       </div>

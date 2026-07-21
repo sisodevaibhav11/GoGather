@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { submitIssue } from '../api.js';
 
 export default function RaiseIssuePage() {
   const [form, setForm] = useState({
@@ -9,22 +10,24 @@ export default function RaiseIssuePage() {
     description: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      // In production, integrate with backend endpoint
-      console.log('Issue submitted:', form);
-      
-      toast.success('Thank you! Your issue has been submitted. We\'ll review it shortly.');
+      setSubmitting(true);
+      await submitIssue(form);
+      toast.success('Thank you! Your issue has been submitted.');
       setSubmitted(true);
       
       setTimeout(() => {
         setForm({ type: 'bug', email: '', subject: '', description: '' });
         setSubmitted(false);
       }, 3000);
-    } catch (error) {
+    } catch {
       toast.error('Could not submit issue. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -148,8 +151,8 @@ export default function RaiseIssuePage() {
                 />
               </label>
 
-              <button type="submit" className="btn-primary w-full">
-                Submit Issue
+              <button type="submit" disabled={submitting} className="btn-primary w-full">
+                {submitting ? 'Submitting Issue...' : 'Submit Issue'}
               </button>
             </form>
           </div>

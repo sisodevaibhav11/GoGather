@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { HiChevronRight, HiHomeModern, HiPhone } from 'react-icons/hi2';
+import { fetchTrips } from '../api.js';
 import { useAuth } from '../hooks/useAuth.js';
 
 async function uploadImageToCloudinary(file) {
@@ -34,20 +35,32 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     name: user?.name || '',
     mobileNumber: user?.mobileNumber || '',
+    hostel: user?.hostel || '',
     photoUrl: user?.photoUrl || '',
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [ridesCount, setRidesCount] = useState(0);
+  const [partnersCount, setPartnersCount] = useState(0);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const { data } = await fetchTrips();
+        const trips = data.trips || [];
+        setRidesCount(trips.length);
+        const matchedOrDone = trips.filter((t) => t.status === 'matched' || t.status === 'done');
+        setPartnersCount(matchedOrDone.length);
+      } catch {
+        // silent fallback
+      }
+    }
+    loadStats();
+  }, []);
 
   const stats = [
-    { label: 'Rides Posted', value: '0' },
-    { label: 'Partners Found', value: '0' },
-  ];
-
-  const accountItems = [
-    { label: 'Edit Profile', disabled: true },
-    { label: 'Change WhatsApp Number', disabled: true },
-    { label: 'Change Hostel', disabled: true },
+    { label: 'Rides Posted', value: String(ridesCount) },
+    { label: 'Partners Matched', value: String(partnersCount) },
   ];
 
   const aboutItems = [
@@ -64,6 +77,7 @@ export default function ProfilePage() {
     try {
       setSaving(true);
       await updateProfile(form);
+      toast.success('Profile updated successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Could not update profile.');
     } finally {
@@ -89,6 +103,8 @@ export default function ProfilePage() {
     }
   }
 
+  const avatarSrc = form.photoUrl || user?.photoUrl;
+
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <div className="surface-card p-6 sm:p-8">
@@ -96,32 +112,39 @@ export default function ProfilePage() {
 
         <div className="mt-5 grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div className="flex flex-col items-center text-center">
-            <img
-              src={form.photoUrl || 'https://placehold.co/160x160?text=GG'}
-              alt={form.name || 'Profile'}
-              className="h-28 w-28 rounded-full border-2 border-[#333333] object-cover"
-            />
+            {avatarSrc ? (
+              <img
+                src={avatarSrc}
+                alt={form.name || 'Profile'}
+                className="h-28 w-28 rounded-full border-2 border-[#00d084] object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            ) : (
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-[#00d084] bg-[#2a2a2a] text-3xl font-extrabold text-[#00d084]">
+                {(form.name || 'G')[0]}
+              </div>
+            )}
             <h1 className="mt-4 text-2xl font-bold text-white">{form.name || 'GoGather User'}</h1>
             <p className="mt-1 text-xs text-[#888888]">{user?.email || 'Add your email'}</p>
 
             <div className="mt-3 flex flex-wrap justify-center gap-2">
-              {['Verified', 'Traveler', 'Active'].map((badge) => (
+              {['Verified Traveler', 'Active'].map((badge) => (
                 <span
                   key={badge}
-                  className="rounded-full border border-[#333333] bg-[#2a2a2a] px-3 py-1 text-[11px] text-[#cfcfcf]"
+                  className="rounded-full border border-[#00d084]/40 bg-[#163628] px-3 py-1 text-[11px] font-semibold text-[#d7ffed]"
                 >
                   {badge}
                 </span>
               ))}
             </div>
 
-            <div className="mt-4 grid w-full gap-3 text-left">
-              <div className="surface-soft flex items-center gap-3 p-3 text-sm text-white">
-                <HiHomeModern className="text-[#00d084]" />
-                <span>Campus / Hostel not added yet</span>
+            <div className="mt-5 grid w-full gap-3 text-left">
+              <div className="surface-soft flex items-center gap-3 p-3.5 text-sm text-white">
+                <HiHomeModern className="text-[18px] text-[#00d084]" />
+                <span>{form.hostel || 'Campus / Hostel not added yet'}</span>
               </div>
-              <div className="surface-soft flex items-center gap-3 p-3 text-sm text-white">
-                <HiPhone className="text-[#00d084]" />
+              <div className="surface-soft flex items-center gap-3 p-3.5 text-sm text-white">
+                <HiPhone className="text-[18px] text-[#00d084]" />
                 <span>{form.mobileNumber || 'Add your WhatsApp number'}</span>
               </div>
             </div>
@@ -139,7 +162,7 @@ export default function ProfilePage() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#888888]">Account</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#888888]">Edit Profile Information</p>
 
               <label className="field-label">
                 <span>Name</span>
@@ -147,29 +170,12 @@ export default function ProfilePage() {
                   value={form.name}
                   onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                   className="field-input"
+                  placeholder="Your full name"
                 />
               </label>
 
-              <div className="flex flex-col gap-3">
-                {accountItems.map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    disabled={item.disabled}
-                    className={`surface-soft flex items-center justify-between px-4 py-3 text-left text-sm ${
-                      item.disabled
-                        ? 'cursor-not-allowed text-[#666666]'
-                        : 'text-white'
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    <HiChevronRight className={item.disabled ? 'text-[#555555]' : 'text-[#888888]'} />
-                  </button>
-                ))}
-              </div>
-
               <label className="field-label">
-                <span>Mobile number *</span>
+                <span>WhatsApp / Mobile number *</span>
                 <input
                   value={form.mobileNumber}
                   onChange={(event) => setForm((current) => ({ ...current, mobileNumber: event.target.value }))}
@@ -179,17 +185,30 @@ export default function ProfilePage() {
                 />
               </label>
 
-              <div className="flex flex-col gap-3">
+              <label className="field-label">
+                <span>Hostel / Campus Residence</span>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleUpload}
-                  className="text-sm text-[#888888] file:mr-4 file:rounded-full file:border-0 file:bg-[#2a2a2a] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+                  value={form.hostel}
+                  onChange={(event) => setForm((current) => ({ ...current, hostel: event.target.value }))}
+                  placeholder="e.g. Oakwood Hostel - Room 304"
+                  className="field-input"
                 />
+              </label>
+
+              <div className="flex flex-col gap-3">
+                <label className="field-label">
+                  <span>Profile Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleUpload}
+                    className="text-sm text-[#888888] file:mr-4 file:rounded-full file:border-0 file:bg-[#2a2a2a] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+                  />
+                </label>
                 <p className="text-xs text-[#888888]">
                   {uploading
                     ? 'Uploading to Cloudinary...'
-                    : 'Optional: upload a better profile photo with Cloudinary, or keep your Google photo.'}
+                    : 'Upload a photo to Cloudinary CDN, or enter a direct image URL below.'}
                 </p>
               </div>
 
@@ -198,11 +217,12 @@ export default function ProfilePage() {
                 <input
                   value={form.photoUrl}
                   onChange={(event) => setForm((current) => ({ ...current, photoUrl: event.target.value }))}
+                  placeholder="https://..."
                   className="field-input"
                 />
               </label>
 
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#888888]">About</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#888888]">About & Support</p>
 
               <div className="flex flex-col gap-3">
                 {aboutItems.map((item) => (
@@ -229,7 +249,7 @@ export default function ProfilePage() {
                 disabled={saving}
                 className="btn-primary w-full"
               >
-                {saving ? 'Saving...' : 'Save profile'}
+                {saving ? 'Saving profile...' : 'Save profile'}
               </button>
             </form>
           </div>

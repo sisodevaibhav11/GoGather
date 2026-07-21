@@ -67,16 +67,16 @@ export default function ShareTripPage() {
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <div className="surface-card p-6 sm:p-8">
         <p className="section-kicker">Shared trip</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">{trip.arrivalLocation.name}</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
+        <h1 className="mt-3 text-3xl font-semibold text-white">{trip.arrivalLocation.name}</h1>
+        <p className="mt-3 text-sm leading-7 text-[#888888]">
           Someone shared this trip so others reaching around the same time can create a matching trip and connect safely.
         </p>
 
-        <div className="surface-soft mt-6 grid gap-3 p-5 text-sm text-slate-600">
-          <p><span className="text-slate-400">Date:</span> {trip.travelDate}</p>
-          <p><span className="text-slate-400">Arrival time:</span> {trip.arrivalTime}</p>
-          <p><span className="text-slate-400">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
-          <p><span className="text-slate-400">Match window:</span> +/- {trip.matchingWindowMinutes} min</p>
+        <div className="surface-soft mt-6 grid gap-3 p-5 text-sm text-[#cccccc]">
+          <p><span className="text-[#888888]">Date:</span> {trip.travelDate}</p>
+          <p><span className="text-[#888888]">Arrival time:</span> {trip.arrivalTime}</p>
+          <p><span className="text-[#888888]">Destination:</span> {trip.destination?.name || 'Optional / not provided'}</p>
+          <p><span className="text-[#888888]">Match window:</span> +/- {trip.matchingWindowMinutes} min</p>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -99,9 +99,9 @@ export default function ShareTripPage() {
       </div>
 
       <div className="surface-card p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold text-slate-900">Trip locations</h2>
-        <p className="mt-2 text-sm text-slate-500">Arrival: {trip.arrivalLocation?.name}</p>
-        <p className="mt-1 text-sm text-slate-500">Destination: {trip.destination?.name || 'Not provided'}</p>
+        <h2 className="text-2xl font-semibold text-white">Trip locations</h2>
+        <p className="mt-2 text-sm text-[#888888]">Arrival: {trip.arrivalLocation?.name}</p>
+        <p className="mt-1 text-sm text-[#888888]">Destination: {trip.destination?.name || 'Not provided'}</p>
       </div>
     </section>
   );

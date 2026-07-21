@@ -2,6 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { HiMapPin } from 'react-icons/hi2';
 import { formatStatus } from '../utils/formatters.js';
 
+const transportLabels = {
+  airport: 'Airport',
+  railway: 'Railway',
+  'bus-stand': 'Bus Stand',
+};
+
 export default function TripCard({ trip, onDelete }) {
   const navigate = useNavigate();
 
@@ -17,6 +23,8 @@ export default function TripCard({ trip, onDelete }) {
     navigate(`/trips/${trip.id}`);
   }
 
+  const transportLabel = transportLabels[trip.transportType] || 'Ride';
+
   return (
     <div
       role="button"
@@ -27,7 +35,7 @@ export default function TripCard({ trip, onDelete }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="badge-pill">Railway</span>
+            <span className="badge-pill">{transportLabel}</span>
             <span className="rounded-full bg-[#2a2a2a] px-3 py-1 text-[11px] font-semibold text-[#888888]">
               {formatStatus(trip.status)}
             </span>
